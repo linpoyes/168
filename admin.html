@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>系統管理 - 序號管理中心</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Cinzel:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#1a1205,#0d0a03 50%,#050402 100%);color:#F5E6C8;font-family:'Noto Serif TC',Georgia,serif;padding:20px 16px}
+@keyframes gs{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.container{max-width:600px;margin:0 auto}
+h1{font-family:'Cinzel',serif;font-size:clamp(20px,4vw,30px);font-weight:900;background:linear-gradient(135deg,#B8860B,#FFD700,#FFF8DC,#FFD700,#B8860B);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 4s linear infinite;letter-spacing:3px;text-align:center;margin-bottom:4px}
+.sub{font-family:'Cinzel',serif;font-size:10px;color:#D4AF37;letter-spacing:4px;opacity:0.5;text-align:center;margin-bottom:24px}
+.panel{padding:20px;background:linear-gradient(180deg,rgba(30,18,5,0.95),rgba(20,12,3,0.98));border-radius:12px;border:1px solid rgba(212,175,55,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.4);margin-bottom:16px}
+.stitle{font-size:11px;color:#D4AF37;letter-spacing:3px;text-align:center;font-family:'Cinzel',serif;opacity:0.6;margin-bottom:16px}
+.btn-row{display:flex;gap:10px;margin-bottom:16px}
+.gbtn{flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Noto Serif TC',serif;transition:all 0.2s;border-width:2px;border-style:solid;background:linear-gradient(180deg,rgba(30,18,5,0.9),rgba(15,9,2,0.95))}
+.gbtn:active{transform:scale(0.97)}
+.g3{border-color:#D4AF37;color:#D4AF37}.g3:hover{box-shadow:0 0 20px rgba(212,175,55,0.3)}
+.g7{border-color:#FF6D00;color:#FF6D00}.g7:hover{box-shadow:0 0 20px rgba(255,109,0,0.3)}
+.result{background:rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.15);border-radius:8px;padding:14px;margin-bottom:12px;display:none}
+.result.show{display:block;animation:fadeIn 0.4s ease}
+.codebox{font-family:'JetBrains Mono',monospace;font-size:14px;color:#FFD740;word-break:break-all;padding:10px;background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.1);border-radius:6px;margin:8px 0;cursor:pointer;user-select:all}
+.codebox:hover{background:rgba(212,175,55,0.1)}
+.meta{font-size:11px;color:rgba(212,175,55,0.5);display:flex;justify-content:space-between}
+.nameinput{width:100%;padding:10px 14px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(212,175,55,0.2);border-radius:8px;color:#FFD740;font-size:13px;font-family:'Noto Serif TC',serif;outline:none}
+.nameinput:focus{border-color:rgba(212,175,55,0.5)}
+.smallbtn{width:100%;padding:8px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:8px;color:#D4AF37;font-size:12px;cursor:pointer;font-family:'Noto Serif TC',serif;margin-top:8px}
+.smallbtn:hover{background:rgba(212,175,55,0.15)}
+.copybtn{width:100%;padding:10px;background:linear-gradient(135deg,rgba(212,175,55,0.15),rgba(184,134,11,0.15));border:1px solid rgba(212,175,55,0.3);border-radius:8px;color:#D4AF37;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Serif TC',serif;margin-top:10px}
+.copybtn:hover{background:linear-gradient(135deg,rgba(212,175,55,0.25),rgba(184,134,11,0.25))}
+#historyList{max-height:400px;overflow-y:auto}
+.hitem{padding:10px 12px;background:rgba(0,0,0,0.3);border:1px solid rgba(212,175,55,0.1);border-radius:8px;margin-bottom:8px}
+.hitem-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap;display:inline-block}
+.b3{background:rgba(212,175,55,0.15);color:#D4AF37;border:1px solid rgba(212,175,55,0.3)}
+.b7{background:rgba(255,109,0,0.15);color:#FF6D00;border:1px solid rgba(255,109,0,0.3)}
+.bexp{background:rgba(255,0,0,0.1);color:#FF5252;border:1px solid rgba(255,0,0,0.2)}
+.bact{background:rgba(0,230,118,0.1);color:#00E676;border:1px solid rgba(0,230,118,0.2)}
+.hname{color:#FFD740;font-size:12px;font-weight:700}
+.hnoname{color:rgba(212,175,55,0.25);font-size:10px;font-style:italic}
+.hcode{font-family:'JetBrains Mono',monospace;color:#FFD740;font-size:11px;cursor:pointer;word-break:break-all;display:block}
+.hcode:hover{color:#fff}
+.actbtn{background:none;border:1px solid rgba(212,175,55,0.2);border-radius:4px;padding:3px 8px;cursor:pointer;font-size:12px;color:rgba(212,175,55,0.6)}
+.actbtn:hover{background:rgba(212,175,55,0.1)}
+.delbtn{background:none;border:1px solid rgba(255,82,82,0.2);border-radius:4px;padding:3px 8px;cursor:pointer;font-size:12px;color:rgba(255,82,82,0.6)}
+.delbtn:hover{background:rgba(255,82,82,0.1)}
+.clearbtn{margin-top:12px;padding:8px;width:100%;background:rgba(255,82,82,0.08);border:1px solid rgba(255,82,82,0.2);border-radius:8px;color:#FF5252;font-size:12px;cursor:pointer;font-family:'Noto Serif TC',serif}
+.clearbtn:hover{background:rgba(255,82,82,0.15)}
+.empty{text-align:center;padding:20px;color:rgba(212,175,55,0.3);font-size:13px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:rgba(212,175,55,0.9);color:#1A0F05;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;transition:transform 0.3s;z-index:999;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.footer{text-align:center;margin-top:20px;opacity:0.25;font-size:12px;color:#D4AF37}
+.admin-login{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%,#1a1205,#0d0a03 50%,#050402 100%);z-index:9999;display:flex;align-items:center;justify-content:center}
+.admin-login.hidden{display:none}
+.admin-login-box{width:90%;max-width:380px;text-align:center;animation:fadeIn 0.8s ease}
+.admin-login-panel{padding:24px;background:linear-gradient(180deg,rgba(30,18,5,0.95),rgba(20,12,3,0.98));border-radius:14px;border:1px solid rgba(212,175,55,0.3);box-shadow:0 8px 40px rgba(0,0,0,0.5)}
+.admin-input{width:100%;padding:12px 16px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(212,175,55,0.2);border-radius:10px;color:#FFD740;font-size:15px;font-family:'JetBrains Mono',monospace;letter-spacing:2px;text-align:center;outline:none;margin-bottom:12px;transition:all 0.3s}
+.admin-input:focus{border-color:rgba(212,175,55,0.5);box-shadow:0 0 15px rgba(212,175,55,0.15)}
+.admin-input::placeholder{color:rgba(212,175,55,0.2);font-size:12px;letter-spacing:1px}
+.admin-login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#D4AF37,#B8860B);background-size:300% auto;border:2px solid #D4AF37;border-radius:10px;color:#1A0F05;font-size:16px;font-weight:900;font-family:'Noto Serif TC',serif;cursor:pointer;animation:gs 3s linear infinite;letter-spacing:3px;transition:all 0.2s;box-shadow:0 4px 20px rgba(212,175,55,0.3)}
+.admin-login-btn:hover{transform:scale(1.03);filter:brightness(1.1)}
+.admin-login-btn:active{transform:scale(0.98)}
+.admin-error{color:#FF5252;font-size:12px;margin-top:10px;min-height:18px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.shake{animation:shake 0.4s ease}
+.admin-logout{position:fixed;top:12px;right:12px;z-index:100;padding:6px 14px;background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.3);border-radius:8px;color:#FF5252;font-size:11px;cursor:pointer;font-family:'Noto Serif TC',serif;display:none}
+.admin-logout:hover{background:rgba(255,82,82,0.2)}
+@media(orientation:landscape){body{zoom:0.85}}
+</style>
+</head>
+<body>
+
+<!-- Admin Login -->
+<div class="admin-login" id="adminLogin">
+  <div class="admin-login-box">
+    <div style="font-size:50px;margin-bottom:16px">🔒</div>
+    <h1>系統管理中心</h1>
+    <div class="sub">ADMIN LOGIN</div>
+    <div class="admin-login-panel">
+      <div style="font-size:12px;color:rgba(212,175,55,0.6);text-align:left;margin-bottom:6px">帳號</div>
+      <input class="admin-input" id="adminUser" type="text" placeholder="請輸入帳號" autocomplete="off"/>
+      <div style="font-size:12px;color:rgba(212,175,55,0.6);text-align:left;margin-bottom:6px">密碼</div>
+      <input class="admin-input" id="adminPass" type="password" placeholder="請輸入密碼"/>
+      <button class="admin-login-btn" id="adminLoginBtn">🔓 登入管理</button>
+      <div class="admin-error" id="adminError"></div>
+    </div>
+    <div style="margin-top:24px;font-size:10px;color:rgba(212,175,55,0.2)">♠ ♥ ♦ ♣</div>
+  </div>
+</div>
+
+<!-- Admin Logout -->
+<button class="admin-logout" id="adminLogout">登出管理</button>
+
+<div class="toast" id="toast"></div>
+
+<div class="container" id="mainContainer" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px">
+    <div style="width:50px;height:1px;background:linear-gradient(90deg,transparent,#D4AF37)"></div>
+    <span style="color:#D4AF37;font-size:16px">⚙</span>
+    <div style="width:50px;height:1px;background:linear-gradient(90deg,#D4AF37,transparent)"></div>
+  </div>
+  <h1>序號管理中心</h1>
+  <div class="sub">ACTIVATION CODE MANAGEMENT</div>
+
+  <div class="panel">
+    <div class="stitle">─── 生成激活序號 ───</div>
+    <div class="btn-row">
+      <button class="gbtn g3" id="btn3">🔑 3天序號</button>
+      <button class="gbtn g7" id="btn7">🔑 7天序號</button>
+    </div>
+    <div class="result" id="resultBox">
+      <div style="font-size:11px;color:rgba(212,175,55,0.5);margin-bottom:6px">生成的序號（點擊即可複製）：</div>
+      <div class="codebox" id="codeDisplay"></div>
+      <div style="margin:10px 0">
+        <div style="font-size:11px;color:rgba(212,175,55,0.5);margin-bottom:6px">備註名稱：</div>
+        <input class="nameinput" id="codeName" type="text" placeholder="輸入名稱（如：小明、VIP-001）"/>
+        <button class="smallbtn" id="saveNameBtn">💾 儲存名稱</button>
+      </div>
+      <div class="meta">
+        <span id="codeType"></span>
+        <span id="codeExpiry"></span>
+      </div>
+      <button class="copybtn" id="copyBtn">📋 複製序號</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="stitle">─── 已生成序號記錄 ───</div>
+    <div id="historyList"></div>
+    <button class="clearbtn" id="clearBtn">🗑 清除所有記錄</button>
+  </div>
+
+  <div class="footer">♠ ♥ ♦ ♣</div>
+</div>
+
+<script>
+var SECRET = 'FORTUNE168';
+var currentCode = null;
+
+function encodeCode(days) {
+  var now = Date.now();
+  var expiry = now + days * 24 * 60 * 60 * 1000;
+  var payload = days + '|' + expiry + '|' + now;
+  var encoded = '';
+  for (var i = 0; i < payload.length; i++) {
+    encoded += String.fromCharCode(payload.charCodeAt(i) ^ SECRET.charCodeAt(i % SECRET.length));
+  }
+  var b64 = btoa(encoded);
+  var clean = b64.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  var prefix = days === 3 ? 'F3' : 'F7';
+  var parts = [];
+  for (var i = 0; i < clean.length && parts.length < 4; i += 4) {
+    parts.push(clean.substr(i, 4));
+  }
+  while (parts.length < 4) parts.push(Math.random().toString(36).substr(2, 4).toUpperCase());
+  return prefix + '-' + parts.join('-');
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      toast('已複製到剪貼簿！');
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  toast('已複製到剪貼簿！');
+}
+
+function generateCode(days) {
+  var code = encodeCode(days);
+  var now = new Date();
+  var expiry = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+  currentCode = code;
+
+  document.getElementById('codeDisplay').textContent = code;
+  document.getElementById('codeType').textContent = '類型：' + days + '天序號';
+  document.getElementById('codeExpiry').textContent = '到期：' + expiry.toLocaleDateString('zh-TW') + ' ' + expiry.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('resultBox').classList.add('show');
+  document.getElementById('codeName').value = '';
+
+  var history = JSON.parse(localStorage.getItem('admin_codes') || '[]');
+  history.unshift({
+    code: code,
+    days: days,
+    name: '',
+    created: now.getTime(),
+    expiry: expiry.getTime()
+  });
+  localStorage.setItem('admin_codes', JSON.stringify(history));
+
+  var validCodes = JSON.parse(localStorage.getItem('valid_codes') || '{}');
+  validCodes[code] = { days: days, expiry: expiry.getTime(), created: now.getTime() };
+  localStorage.setItem('valid_codes', JSON.stringify(validCodes));
+
+  renderHistory();
+  toast('序號生成成功！');
+}
+
+function saveName() {
+  var name = document.getElementById('codeName').value.trim();
+  if (!name) { toast('請輸入名稱'); return; }
+  if (!currentCode) { toast('請先生成序號'); return; }
+  var history = JSON.parse(localStorage.getItem('admin_codes') || '[]');
+  for (var i = 0; i < history.length; i++) {
+    if (history[i].code === currentCode) {
+      history[i].name = name;
+      break;
+    }
+  }
+  localStorage.setItem('admin_codes', JSON.stringify(history));
+  renderHistory();
+  toast('已儲存名稱：' + name);
+}
+
+function editName(code) {
+  var history = JSON.parse(localStorage.getItem('admin_codes') || '[]');
+  var oldName = '';
+  for (var i = 0; i < history.length; i++) {
+    if (history[i].code === code) { oldName = history[i].name || ''; break; }
+  }
+  var newName = prompt('輸入新名稱：', oldName);
+  if (newName === null) return;
+  for (var i = 0; i < history.length; i++) {
+    if (history[i].code === code) {
+      history[i].name = newName.trim();
+      break;
+    }
+  }
+  localStorage.setItem('admin_codes', JSON.stringify(history));
+  renderHistory();
+  toast('已更新名稱');
+}
+
+function deleteCode(code) {
+  if (!confirm('確定要刪除此序號嗎？')) return;
+  var history = JSON.parse(localStorage.getItem('admin_codes') || '[]');
+  var newHistory = [];
+  for (var i = 0; i < history.length; i++) {
+    if (history[i].code !== code) newHistory.push(history[i]);
+  }
+  localStorage.setItem('admin_codes', JSON.stringify(newHistory));
+
+  var validCodes = JSON.parse(localStorage.getItem('valid_codes') || '{}');
+  delete validCodes[code];
+  localStorage.setItem('valid_codes', JSON.stringify(validCodes));
+
+  renderHistory();
+  toast('已刪除序號');
+}
+
+function clearAll() {
+  if (!confirm('確定要清除所有序號記錄嗎？')) return;
+  localStorage.removeItem('admin_codes');
+  localStorage.removeItem('valid_codes');
+  document.getElementById('resultBox').classList.remove('show');
+  currentCode = null;
+  renderHistory();
+  toast('已清除所有記錄');
+}
+
+function renderHistory() {
+  var history = JSON.parse(localStorage.getItem('admin_codes') || '[]');
+  var container = document.getElementById('historyList');
+
+  // Clear
+  while (container.firstChild) container.removeChild(container.firstChild);
+
+  if (history.length === 0) {
+    var empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = '尚無序號記錄';
+    container.appendChild(empty);
+    return;
+  }
+
+  var now = Date.now();
+
+  for (var i = 0; i < history.length; i++) {
+    (function(item) {
+      var isExpired = now > item.expiry;
+      var remaining = item.expiry - now;
+      var totalHours = Math.max(0, Math.floor(remaining / 3600000));
+      var d = Math.floor(totalHours / 24);
+      var hr = totalHours % 24;
+      var timeStr = isExpired ? '已過期' : '剩餘 ' + d + '天' + hr + '時';
+
+      var row = document.createElement('div');
+      row.className = 'hitem';
+
+      // Top row
+      var top = document.createElement('div');
+      top.className = 'hitem-top';
+
+      // Day badge
+      var dayB = document.createElement('span');
+      dayB.className = 'badge ' + (item.days === 3 ? 'b3' : 'b7');
+      dayB.textContent = item.days + '天';
+      top.appendChild(dayB);
+
+      // Name
+      var nameSpan = document.createElement('span');
+      if (item.name) {
+        nameSpan.className = 'hname';
+        nameSpan.textContent = item.name;
+      } else {
+        nameSpan.className = 'hnoname';
+        nameSpan.textContent = '未命名';
+      }
+      top.appendChild(nameSpan);
+
+      // Edit button
+      var editBtn = document.createElement('button');
+      editBtn.className = 'actbtn';
+      editBtn.textContent = '✏️ 編輯';
+      editBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        editName(item.code);
+      });
+      top.appendChild(editBtn);
+
+      // Delete button
+      var delBtn = document.createElement('button');
+      delBtn.className = 'delbtn';
+      delBtn.textContent = '🗑 刪除';
+      delBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteCode(item.code);
+      });
+      top.appendChild(delBtn);
+
+      // Spacer
+      var spacer = document.createElement('span');
+      spacer.style.flex = '1';
+      top.appendChild(spacer);
+
+      // Status badge
+      var statusB = document.createElement('span');
+      statusB.className = 'badge ' + (isExpired ? 'bexp' : 'bact');
+      statusB.textContent = timeStr;
+      top.appendChild(statusB);
+
+      row.appendChild(top);
+
+      // Code line
+      var codeLine = document.createElement('span');
+      codeLine.className = 'hcode';
+      codeLine.textContent = item.code;
+      codeLine.title = '點擊複製';
+      codeLine.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        copyText(item.code);
+      });
+      row.appendChild(codeLine);
+
+      container.appendChild(row);
+    })(history[i]);
+  }
+}
+
+// ─── Event Bindings ───
+document.getElementById('btn3').addEventListener('click', function() { generateCode(3); });
+document.getElementById('btn7').addEventListener('click', function() { generateCode(7); });
+document.getElementById('saveNameBtn').addEventListener('click', function() { saveName(); });
+document.getElementById('copyBtn').addEventListener('click', function() {
+  var code = document.getElementById('codeDisplay').textContent;
+  if (code) copyText(code);
+});
+document.getElementById('codeDisplay').addEventListener('click', function() {
+  var code = this.textContent;
+  if (code) copyText(code);
+});
+document.getElementById('clearBtn').addEventListener('click', function() { clearAll(); });
+
+// ─── Admin Login System ───
+// Hashed credentials (simple hash for client-side)
+function simpleHash(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    var char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return hash.toString();
+}
+
+var ADMIN_USER_HASH = simpleHash('72839168');
+var ADMIN_PASS_HASH = simpleHash('85379150');
+
+function checkAdminSession() {
+  var s = localStorage.getItem('admin_session');
+  if (!s) return false;
+  try {
+    var data = JSON.parse(s);
+    // Session expires after 24 hours
+    if (Date.now() - data.time > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem('admin_session');
+      return false;
+    }
+    return true;
+  } catch(e) { return false; }
+}
+
+function adminLogin() {
+  var user = document.getElementById('adminUser').value.trim();
+  var pass = document.getElementById('adminPass').value.trim();
+  var errEl = document.getElementById('adminError');
+
+  if (!user || !pass) {
+    errEl.textContent = '請輸入帳號和密碼';
+    return;
+  }
+
+  if (simpleHash(user) === ADMIN_USER_HASH && simpleHash(pass) === ADMIN_PASS_HASH) {
+    localStorage.setItem('admin_session', JSON.stringify({ time: Date.now() }));
+    showAdmin();
+    errEl.textContent = '';
+  } else {
+    errEl.textContent = '帳號或密碼錯誤';
+    document.getElementById('adminUser').classList.add('shake');
+    document.getElementById('adminPass').classList.add('shake');
+    setTimeout(function() {
+      document.getElementById('adminUser').classList.remove('shake');
+      document.getElementById('adminPass').classList.remove('shake');
+    }, 500);
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('admin_session');
+  document.getElementById('adminLogin').classList.remove('hidden');
+  document.getElementById('mainContainer').style.display = 'none';
+  document.getElementById('adminLogout').style.display = 'none';
+  document.getElementById('adminUser').value = '';
+  document.getElementById('adminPass').value = '';
+  document.getElementById('adminError').textContent = '';
+}
+
+function showAdmin() {
+  document.getElementById('adminLogin').classList.add('hidden');
+  document.getElementById('mainContainer').style.display = 'block';
+  document.getElementById('adminLogout').style.display = 'block';
+  renderHistory();
+}
+
+document.getElementById('adminLoginBtn').addEventListener('click', function() { adminLogin(); });
+document.getElementById('adminLogout').addEventListener('click', function() { adminLogout(); });
+document.getElementById('adminUser').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('adminPass').focus(); });
+document.getElementById('adminPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') adminLogin(); });
+
+// Init - check session
+if (checkAdminSession()) {
+  showAdmin();
+} else {
+  renderHistory();
+}
+</script>
+</body>
+</html>
