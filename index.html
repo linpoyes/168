@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>致富預測系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0A0604}
+::-webkit-scrollbar{height:6px}::-webkit-scrollbar-track{background:rgba(212,175,55,0.05)}::-webkit-scrollbar-thumb{background:rgba(212,175,55,0.25);border-radius:3px}
+@keyframes gs{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes pg{0%,100%{box-shadow:0 0 20px rgba(212,175,55,0.3)}50%{box-shadow:0 0 30px rgba(212,175,55,0.5)}}
+@keyframes fu{from{opacity:0;transform:translateY(20px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes sp{0%,100%{opacity:0.15}50%{opacity:0.7}}
+@keyframes tp{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes rf{0%{box-shadow:0 0 0 rgba(212,175,55,0)}30%{box-shadow:0 0 25px rgba(212,175,55,0.5)}100%{box-shadow:0 0 0 rgba(212,175,55,0)}}
+.gb{transition:all .2s ease !important}.gb:hover{transform:scale(1.04) !important;filter:brightness(1.15) !important}.gb:active{transform:scale(0.98) !important}
+@media(orientation:landscape){.bac-root{zoom:0.8}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const{useState,useCallback,useRef,useEffect}=React;
+
+const RESULTS={
+  B:{label:"莊",labelEn:"BANKER",color:"#FF1744",bg:"radial-gradient(circle,rgba(255,23,68,0.25) 0%,rgba(255,23,68,0.08) 100%)",border:"#FF1744",glow:"rgba(255,23,68,0.5)"},
+  P:{label:"閒",labelEn:"PLAYER",color:"#448AFF",bg:"radial-gradient(circle,rgba(68,138,255,0.25) 0%,rgba(68,138,255,0.08) 100%)",border:"#448AFF",glow:"rgba(68,138,255,0.5)"},
+  T:{label:"和",labelEn:"TIE",color:"#00E676",bg:"radial-gradient(circle,rgba(0,230,118,0.25) 0%,rgba(0,230,118,0.08) 100%)",border:"#00E676",glow:"rgba(0,230,118,0.5)"},
+};
+const SIDE_BETS={BP:{label:"莊對",color:"#FF1744",icon:"◆"},PP:{label:"閒對",color:"#448AFF",icon:"◆"},L6:{label:"幸運6",color:"#FFD740",icon:"★"}};
+const TRENDS=[{label:"大衝",icon:"⚡",color:"#FF6D00"},{label:"小衝",icon:"〜",color:"#FFAB40"},{label:"平穩",icon:"━",color:"#69F0AE"},{label:"順",icon:"➤",color:"#40C4FF"}];
+
+function buildBeadRoad(h){const g=[];let c=-1,r=0;h.forEach((e,i)=>{if(i%6===0){c++;r=0}else r++;if(!g[c])g[c]=[];g[c][r]=e});return g}
+function buildBigRoad(h){const g=[];let c=-1,r=-1,l=null;h.forEach(e=>{const m=e.result;if(m==="T"){if(c>=0&&r>=0){if(!g[c][r].ties)g[c][r].ties=0;g[c][r].ties++}return}if(m!==l){c++;r=0;l=m}else r++;if(!g[c])g[c]=[];g[c][r]={...e}});return g}
+function getBRC(h){const c=[];let l=null,n=0;h.forEach(e=>{if(e.result==="T")return;if(e.result!==l){if(l!==null)c.push(n);l=e.result;n=1}else n++});if(n>0)c.push(n);return c}
+function buildDR(h,o){const bc=getBRC(h),res=[];for(let c=0;c<bc.length;c++)for(let r=0;r<bc[c];r++){if(c<o||(c===o&&r===0))continue;const cc=c-o;let isR;if(r===0)isR=(bc[c-1]||0)===(bc[cc]||0);else isR=r<=(bc[cc]||0)-1;res.push(isR?"red":"blue")}const g=[];let col=-1,row=-1,lc=null;res.forEach(color=>{if(color!==lc){col++;row=0;lc=color}else row++;if(!g[col])g[col]=[];g[col][row]=color});return g}
+
+function RoadGrid({grid,rows=6,cellSize=36,renderCell}){
+  const ref=useRef(null);const[cols,setCols]=useState(12);
+  useEffect(()=>{const m=()=>{if(ref.current){const w=ref.current.clientWidth-6;setCols(Math.max(grid.length,Math.floor(w/(cellSize+1))))}};m();const ro=new ResizeObserver(m);if(ref.current)ro.observe(ref.current);return()=>ro.disconnect()},[grid.length,cellSize]);
+  useEffect(()=>{if(ref.current)ref.current.scrollLeft=ref.current.scrollWidth},[grid]);
+  const mx=Math.max(grid.length,cols);
+  return(<div ref={ref} style={{overflowX:"auto",overflowY:"hidden",width:"100%",border:"1px solid rgba(212,175,55,0.25)",borderRadius:10,background:"linear-gradient(180deg,rgba(15,8,2,0.9),rgba(25,12,4,0.95))",boxShadow:"inset 0 1px 3px rgba(0,0,0,0.5)"}}>
+    <div style={{display:"grid",gridTemplateColumns:`repeat(${mx},1fr)`,gridTemplateRows:`repeat(${rows},${cellSize}px)`,gap:1,padding:3,minWidth:mx*(cellSize+1)}}>
+      {Array.from({length:rows}).map((_,r)=>Array.from({length:mx}).map((_,c)=>{const cell=grid[c]?.[r];return <div key={`${c}-${r}`} style={{minHeight:cellSize,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(212,175,55,0.02)",borderRadius:3,border:"1px solid rgba(212,175,55,0.04)"}}>{cell&&renderCell(cell,cellSize)}</div>}))}
+    </div></div>)
+}
+function BeadCell({entry,size}){const r=RESULTS[entry.result],s=size*0.7;return <div style={{position:"relative"}}><div style={{width:s,height:s,borderRadius:"50%",background:r.bg,border:`2px solid ${r.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:s*0.45,fontWeight:700,color:r.color,boxShadow:`0 0 8px ${r.glow}`}}>{r.label}</div>{entry.sideBets?.length>0&&<div style={{position:"absolute",top:-3,right:-5,display:"flex",gap:1}}>{entry.sideBets.map(sb=><span key={sb} style={{fontSize:9,color:SIDE_BETS[sb].color}}>{SIDE_BETS[sb].icon}</span>)}</div>}</div>}
+function BigRoadCell({entry,size}){const r=RESULTS[entry.result],s=size*0.65;return <div style={{position:"relative"}}><div style={{width:s,height:s,borderRadius:"50%",border:`2.5px solid ${r.color}`,boxShadow:`0 0 6px ${r.glow}`}}/>{entry.ties>0&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",fontSize:9,fontWeight:800,color:RESULTS.T.color}}>{entry.ties}</div>}</div>}
+function DCC({color,size,filled=true}){const s=size*0.5,c=color==="red"?"#FF1744":"#448AFF";return <div style={{width:s,height:s,borderRadius:"50%",background:filled?c:"transparent",border:filled?"none":`2px solid ${c}`,boxShadow:`0 0 5px ${c}44`}}/>}
+function CRC({color,size}){const s=size*0.55,c=color==="red"?"#FF1744":"#448AFF";return <div style={{width:s,height:s,position:"relative"}}><div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",background:`linear-gradient(135deg,transparent 45%,${c} 45%,${c} 55%,transparent 55%)`}}/></div>}
+
+function predictNext(history){let bP=0.4586,pP=0.4462;if(history.length>=3){const l=history.slice(-3).map(h=>h.result).filter(r=>r!=="T");if(l.length>=3&&l.every(r=>r==="B")){bP+=0.05;pP-=0.03}if(l.length>=3&&l.every(r=>r==="P")){pP+=0.05;bP-=0.03}}const t=bP+pP,result=Math.random()*t<bP?"B":"P";const sb=[];if(Math.random()<0.0747)sb.push("BP");if(Math.random()<0.0747)sb.push("PP");if(result==="B"&&Math.random()<0.0689)sb.push("L6");const cv=50+Math.random()*35,confidence=cv.toFixed(1);let trend;if(cv>=76)trend=TRENDS[0];else if(cv>=67)trend=TRENDS[1];else if(cv>=59)trend=TRENDS[2];else trend=TRENDS[3];let bW,pW;if(result==="B"){bW=60+Math.random()*25;pW=60+Math.random()*(bW-61)}else{pW=60+Math.random()*25;bW=60+Math.random()*(pW-61)}return{result,sideBets:sb,confidence,trend,independents:{tieWin:(1+Math.random()*8.52).toFixed(1),bpWin:(1+Math.random()*6.47).toFixed(1),ppWin:(1+Math.random()*6.47).toFixed(1),l6Win:(1+Math.random()*4.39).toFixed(1)}}}
+
+function GC({position}){const t=position.includes("top"),l=position.includes("left");return <div style={{position:"absolute",[t?"top":"bottom"]:-1,[l?"left":"right"]:-1,width:24,height:24,borderTop:t?"2px solid #D4AF37":"none",borderBottom:!t?"2px solid #D4AF37":"none",borderLeft:l?"2px solid #D4AF37":"none",borderRight:!l?"2px solid #D4AF37":"none",opacity:0.6}}/>}
+function Panel({children,style={}}){return <div style={{position:"relative",padding:16,background:"linear-gradient(180deg,rgba(30,18,5,0.95),rgba(20,12,3,0.98))",borderRadius:12,border:"1px solid rgba(212,175,55,0.3)",boxShadow:"0 4px 20px rgba(0,0,0,0.4),inset 0 1px 0 rgba(212,175,55,0.1)",...style}}><GC position="top-left"/><GC position="top-right"/><GC position="bottom-left"/><GC position="bottom-right"/>{children}</div>}
+function RL({label,en}){return <div style={{fontSize:11,color:"#D4AF37",letterSpacing:2,marginBottom:8,display:"flex",alignItems:"center",gap:8,fontFamily:"'Cinzel',serif",opacity:0.7}}><span style={{width:8,height:8,borderRadius:"50%",background:"radial-gradient(circle,#FFD700,#B8860B)",boxShadow:"0 0 6px rgba(212,175,55,0.5)"}}/>{label} {en}</div>}
+
+function App(){
+  const[history,setHistory]=useState([]);const[pred,setPred]=useState(null);const[anim,setAnim]=useState(false);const[show,setShow]=useState(false);const[selSB,setSelSB]=useState([]);const[spin,setSpin]=useState(null);const[flash,setFlash]=useState(false);const sRef=useRef(null);
+  const add=useCallback((r,sb=[])=>setHistory(p=>[...p,{result:r,sideBets:sb,id:Date.now()+Math.random()}]),[]);
+  const doPredict=useCallback(()=>{setAnim(true);setShow(false);setPred(null);const lb=["B","P","B","P","B","P","B","P","B","P"];let i=0;setSpin(lb[0]);sRef.current=setInterval(()=>{i++;if(i<lb.length)setSpin(lb[i])},100);setTimeout(()=>{clearInterval(sRef.current);const p=predictNext(history);setSpin(p.result);setTimeout(()=>{setSpin(null);setPred(p);setAnim(false);setFlash(true);setTimeout(()=>setShow(true),80);setTimeout(()=>setFlash(false),1200)},300)},1200)},[history]);
+  const clear=useCallback(()=>{setHistory([]);setPred(null);setShow(false)},[]);const undo=useCallback(()=>{setHistory(p=>p.slice(0,-1));setPred(null);setShow(false)},[]);
+  const bead=buildBeadRoad(history),big=buildBigRoad(history),eye=buildDR(history,1),small=buildDR(history,2),cock=buildDR(history,3);
+  const st={B:history.filter(h=>h.result==="B").length,P:history.filter(h=>h.result==="P").length,T:history.filter(h=>h.result==="T").length,BP:history.filter(h=>h.sideBets?.includes("BP")).length,PP:history.filter(h=>h.sideBets?.includes("PP")).length,L6:history.filter(h=>h.sideBets?.includes("L6")).length};
+
+  return(
+    <div className="bac-root" style={{minHeight:"100vh",background:"radial-gradient(ellipse at 50% 0%,#2A1810 0%,#150D05 40%,#0A0604 100%)",color:"#F5E6C8",fontFamily:"'Noto Serif TC','Noto Sans TC',Georgia,serif",padding:16,boxSizing:"border-box"}}>
+      <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,pointerEvents:"none",zIndex:0,background:"repeating-linear-gradient(45deg,transparent,transparent 80px,rgba(212,175,55,0.015) 80px,rgba(212,175,55,0.015) 81px),repeating-linear-gradient(-45deg,transparent,transparent 80px,rgba(212,175,55,0.015) 80px,rgba(212,175,55,0.015) 81px)"}}/>
+      {[...Array(8)].map((_,i)=><div key={i} style={{position:"fixed",top:`${10+i*12}%`,left:`${5+(i*13)%90}%`,width:3,height:3,borderRadius:"50%",background:"#D4AF37",animation:`sp ${2+i*0.5}s ease-in-out infinite`,animationDelay:`${i*0.3}s`,pointerEvents:"none"}}/>)}
+      <div style={{position:"relative",zIndex:1,maxWidth:560,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:24,paddingTop:8}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,marginBottom:12}}><div style={{width:60,height:1,background:"linear-gradient(90deg,transparent,#D4AF37)"}}/><span style={{color:"#D4AF37",fontSize:18,animation:"fl 3s ease-in-out infinite"}}>💰</span><div style={{width:60,height:1,background:"linear-gradient(90deg,#D4AF37,transparent)"}}/></div>
+          <h1 style={{fontFamily:"'Cinzel Decorative','Noto Serif TC',serif",fontSize:"clamp(22px,5vw,36px)",fontWeight:900,background:"linear-gradient(135deg,#B8860B,#FFD700,#FFF8DC,#FFD700,#B8860B)",backgroundSize:"300% auto",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"gs 4s linear infinite",letterSpacing:4,lineHeight:1.3}}>致富預測系統</h1>
+          <p style={{fontFamily:"'Cinzel',serif",fontSize:11,color:"#D4AF37",marginTop:6,letterSpacing:4,opacity:0.6}}>FORTUNE PREDICTION SYSTEM</p>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginTop:10}}><div style={{width:40,height:1,background:"linear-gradient(90deg,transparent,rgba(212,175,55,0.4))"}}/><span style={{color:"rgba(212,175,55,0.4)",fontSize:10}}>✦ ✦ ✦</span><div style={{width:40,height:1,background:"linear-gradient(90deg,rgba(212,175,55,0.4),transparent)"}}/></div>
+        </div>
+        <Panel style={{marginBottom:16,padding:"12px 14px"}}>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",alignItems:"center"}}>
+            {Object.entries(RESULTS).map(([k,v])=><div key={k} style={{display:"flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:v.bg,border:`1px solid ${v.border}44`}}><span style={{color:v.color,fontWeight:700,fontSize:14}}>{v.label}</span><span style={{color:v.color,fontFamily:"'Cinzel',serif",fontSize:18,fontWeight:700}}>{st[k]}</span></div>)}
+            <div style={{width:"100%",display:"flex",gap:6,justifyContent:"center",flexWrap:"wrap"}}>
+              {Object.entries(SIDE_BETS).map(([k,v])=><div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",borderRadius:6,background:"rgba(212,175,55,0.04)",border:"1px solid rgba(212,175,55,0.1)"}}><span style={{color:v.color,fontSize:10}}>{v.icon}</span><span style={{color:"rgba(212,175,55,0.6)",fontSize:11}}>{v.label}</span><span style={{color:v.color,fontFamily:"'Cinzel',serif",fontSize:13,fontWeight:700}}>{st[k]}</span></div>)}
+              <div style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px"}}><span style={{color:"rgba(212,175,55,0.5)",fontSize:11}}>總局</span><span style={{color:"#D4AF37",fontFamily:"'Cinzel',serif",fontSize:14,fontWeight:700}}>{history.length}</span></div>
+            </div>
+          </div>
+        </Panel>
+        <Panel style={{marginBottom:16}}>
+          <div style={{fontSize:11,color:"#D4AF37",marginBottom:12,letterSpacing:3,textAlign:"center",fontFamily:"'Cinzel',serif",opacity:0.7}}>─── 輸入開牌結果 ───</div>
+          <div style={{display:"flex",gap:10,marginBottom:12,flexWrap:"wrap"}}>{Object.entries(RESULTS).map(([k,v])=><button key={k} className="gb" onClick={()=>{add(k,selSB);setSelSB([])}} style={{flex:"1 1 80px",padding:"16px 8px",background:"linear-gradient(180deg,rgba(30,18,5,0.9),rgba(15,9,2,0.95))",border:`2px solid ${v.border}`,borderRadius:12,color:v.color,fontSize:24,fontWeight:900,cursor:"pointer",fontFamily:"'Noto Serif TC',serif",boxShadow:`0 0 15px ${v.glow}33`,textShadow:`0 0 12px ${v.glow}`}}>{v.label}<div style={{fontSize:9,opacity:0.6,marginTop:3,fontFamily:"'Cinzel',serif",letterSpacing:2}}>{v.labelEn}</div></button>)}</div>
+          <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:11,color:"rgba(212,175,55,0.4)"}}>附加：</span>{Object.entries(SIDE_BETS).map(([k,v])=>{const a=selSB.includes(k);return <button key={k} onClick={()=>setSelSB(p=>p.includes(k)?p.filter(b=>b!==k):[...p,k])} style={{padding:"6px 14px",background:a?`${v.color}18`:"rgba(212,175,55,0.04)",border:`1.5px solid ${a?v.color:"rgba(212,175,55,0.15)"}`,borderRadius:8,color:a?v.color:"rgba(212,175,55,0.5)",fontSize:12,fontWeight:a?700:400,cursor:"pointer",transition:"all 0.2s"}}>{v.icon} {v.label}</button>})}</div>
+          <div style={{height:1,background:"linear-gradient(90deg,transparent,rgba(212,175,55,0.2),transparent)",marginBottom:14}}/>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button className="gb" onClick={doPredict} disabled={anim} style={{flex:"2 1 140px",padding:"14px 16px",background:anim?"rgba(212,175,55,0.1)":"linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#D4AF37,#B8860B)",backgroundSize:"300% auto",border:anim?"2px solid rgba(212,175,55,0.3)":"2px solid #D4AF37",borderRadius:12,color:anim?"#D4AF37":"#1A0F05",fontSize:16,fontWeight:900,cursor:anim?"wait":"pointer",animation:anim?"pg 1s infinite":"gs 3s linear infinite",letterSpacing:3,fontFamily:"'Noto Serif TC',serif",boxShadow:anim?"none":"0 4px 20px rgba(212,175,55,0.3)"}}>{anim?"⟳ 預測中...":"🔮 預測發財"}</button>
+            <button className="gb" onClick={undo} disabled={!history.length} style={{flex:"1 1 60px",padding:12,background:"rgba(212,175,55,0.06)",border:"1px solid rgba(212,175,55,0.2)",borderRadius:10,color:"#D4AF37",fontSize:13,cursor:!history.length?"not-allowed":"pointer",opacity:!history.length?0.3:0.7}}>↩ 撤銷</button>
+            <button className="gb" onClick={clear} disabled={!history.length} style={{flex:"1 1 60px",padding:12,background:"rgba(212,175,55,0.06)",border:"1px solid rgba(212,175,55,0.2)",borderRadius:10,color:"#D4AF37",fontSize:13,cursor:!history.length?"not-allowed":"pointer",opacity:!history.length?0.3:0.7}}>✕ 清除</button>
+          </div>
+        </Panel>
+
+        {anim&&spin&&<div style={{padding:30,background:"linear-gradient(180deg,rgba(40,25,8,0.95),rgba(20,12,3,0.98))",borderRadius:14,border:"2px solid rgba(212,175,55,0.5)",marginBottom:16,textAlign:"center",boxShadow:"0 0 40px rgba(212,175,55,0.2)",position:"relative"}}><GC position="top-left"/><GC position="top-right"/><GC position="bottom-left"/><GC position="bottom-right"/><div style={{fontSize:11,color:"#D4AF37",letterSpacing:4,marginBottom:16,fontFamily:"'Cinzel',serif",opacity:0.7}}>─── 預測中 ───</div><div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:100,height:100,borderRadius:"50%",background:RESULTS[spin].bg,border:`3px solid ${RESULTS[spin].color}`,boxShadow:`0 0 40px ${RESULTS[spin].glow}88`,transition:"all 0.08s",animation:"pg 0.6s infinite"}}><span style={{fontSize:48,fontWeight:900,color:RESULTS[spin].color,textShadow:`0 0 25px ${RESULTS[spin].glow}`,fontFamily:"'Noto Serif TC',serif"}}>{RESULTS[spin].label}</span></div><div style={{display:"flex",justifyContent:"center",gap:12,marginTop:16}}>{["B","P"].map(k=><div key={k} style={{width:36,height:36,borderRadius:"50%",background:spin===k?RESULTS[k].bg:"rgba(255,255,255,0.03)",border:`2px solid ${spin===k?RESULTS[k].color:"rgba(255,255,255,0.08)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:spin===k?RESULTS[k].color:"rgba(255,255,255,0.15)",transition:"all 0.08s",transform:spin===k?"scale(1.15)":"scale(1)"}}>{RESULTS[k].label}</div>)}</div></div>}
+
+        {pred&&<div style={{animation:show?"fu 0.6s cubic-bezier(0.16,1,0.3,1)":"none",opacity:show?1:0,transition:"opacity 0.3s",marginBottom:16}}><div style={{padding:16,background:"linear-gradient(180deg,rgba(40,25,8,0.95),rgba(20,12,3,0.98))",borderRadius:14,border:"2px solid rgba(212,175,55,0.4)",boxShadow:"0 8px 40px rgba(212,175,55,0.15)",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:200,height:200,borderRadius:"50%",background:`radial-gradient(circle,${RESULTS[pred.result].glow}22,transparent 70%)`,pointerEvents:"none"}}/><GC position="top-left"/><GC position="top-right"/><GC position="bottom-left"/><GC position="bottom-right"/>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
+              <div style={{fontSize:10,color:"#D4AF37",letterSpacing:4,fontFamily:"'Cinzel',serif",opacity:0.7}}>預測結果</div>
+              <div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:72,height:72,borderRadius:"50%",background:RESULTS[pred.result].bg,border:`3px solid ${RESULTS[pred.result].color}`,boxShadow:`0 0 25px ${RESULTS[pred.result].glow}66`,animation:"fl 3s ease-in-out infinite"}}><span style={{fontSize:34,fontWeight:900,color:RESULTS[pred.result].color,textShadow:`0 0 20px ${RESULTS[pred.result].glow}`,fontFamily:"'Noto Serif TC',serif"}}>{RESULTS[pred.result].label}</span></div>
+              <div style={{fontSize:11,color:RESULTS[pred.result].color,fontFamily:"'Cinzel',serif",letterSpacing:2,opacity:0.8}}>{RESULTS[pred.result].labelEn}</div>
+              {pred.sideBets.length>0&&<div style={{display:"flex",gap:6}}>{pred.sideBets.map(sb=><span key={sb} style={{padding:"3px 8px",background:`${SIDE_BETS[sb].color}15`,border:`1px solid ${SIDE_BETS[sb].color}55`,borderRadius:6,color:SIDE_BETS[sb].color,fontSize:10,fontWeight:700}}>{SIDE_BETS[sb].icon} {SIDE_BETS[sb].label}</span>)}</div>}
+              <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",justifyContent:"center"}}>
+                <div style={{display:"inline-flex",alignItems:"center",gap:4,padding:"4px 10px",background:`${pred.trend.color}12`,borderRadius:16,fontSize:11,color:pred.trend.color,border:`1px solid ${pred.trend.color}44`,fontWeight:700,animation:"tp 2s ease-in-out infinite"}}><span style={{fontSize:13}}>{pred.trend.icon}</span>{pred.trend.label}</div>
+                <div style={{padding:"4px 10px",background:"linear-gradient(135deg,rgba(212,175,55,0.1),rgba(184,134,11,0.1))",borderRadius:16,fontSize:11,color:"#D4AF37",border:"1px solid rgba(212,175,55,0.2)",fontFamily:"'Cinzel',serif"}}>信心 {pred.confidence}%</div>
+              </div>
+            </div>
+            <div style={{width:"80%",height:1,background:"linear-gradient(90deg,transparent,rgba(212,175,55,0.25),transparent)"}}/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,width:"100%"}}>
+              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(0,230,118,0.06)",border:"1px solid rgba(0,230,118,0.2)",display:"flex",alignItems:"center",justifyContent:"space-between"}}><div style={{width:22,height:22,borderRadius:"50%",background:"radial-gradient(circle,rgba(0,230,118,0.3),rgba(0,230,118,0.1))",border:"1.5px solid #00E676",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:"#00E676"}}>和</div><span style={{fontFamily:"'Cinzel',serif",fontSize:13,fontWeight:700,color:"#00E676"}}>{pred.independents.tieWin}%</span></div>
+              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(255,215,64,0.06)",border:"1px solid rgba(255,215,64,0.2)",display:"flex",alignItems:"center",justifyContent:"space-between"}}><div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:14,color:"#FFD740"}}>★</span><span style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>幸運6</span></div><span style={{fontFamily:"'Cinzel',serif",fontSize:13,fontWeight:700,color:"#FFD740"}}>{pred.independents.l6Win}%</span></div>
+              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(255,23,68,0.04)",border:"1px solid rgba(255,23,68,0.15)",display:"flex",alignItems:"center",justifyContent:"space-between"}}><div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:11,color:"#FF1744"}}>◆</span><span style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>莊對</span></div><span style={{fontFamily:"'Cinzel',serif",fontSize:12,fontWeight:700,color:"#FF1744",opacity:0.8}}>{pred.independents.bpWin}%</span></div>
+              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(68,138,255,0.04)",border:"1px solid rgba(68,138,255,0.15)",display:"flex",alignItems:"center",justifyContent:"space-between"}}><div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:11,color:"#448AFF"}}>◆</span><span style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>閒對</span></div><span style={{fontFamily:"'Cinzel',serif",fontSize:12,fontWeight:700,color:"#448AFF",opacity:0.8}}>{pred.independents.ppWin}%</span></div>
+            </div>
+          </div>
+        </div></div>}
+
+        <div style={{animation:flash?"rf 1.2s ease-out":"none",borderRadius:14}}>
+          <div style={{marginBottom:16}}><RL label="珠盤路" en="BEAD ROAD"/><RoadGrid grid={bead} cellSize={34} renderCell={(c,s)=><BeadCell entry={c} size={s}/>}/></div>
+          <div style={{marginBottom:16}}><RL label="大路" en="BIG ROAD"/><RoadGrid grid={big} cellSize={34} renderCell={(c,s)=><BigRoadCell entry={c} size={s}/>}/></div>
+          <div style={{marginBottom:16}}><RL label="莊問路（大眼路）" en="BIG EYE ROAD"/><RoadGrid grid={eye} rows={6} cellSize={28} renderCell={(c,s)=><DCC color={c} size={s} filled/>}/></div>
+          <div style={{marginBottom:16}}><RL label="閒問路（小路）" en="SMALL ROAD"/><RoadGrid grid={small} rows={6} cellSize={28} renderCell={(c,s)=><DCC color={c} size={s} filled={false}/>}/></div>
+          <div style={{marginBottom:16}}><RL label="蟑螂路" en="COCKROACH ROAD"/><RoadGrid grid={cock} rows={6} cellSize={28} renderCell={(c,s)=><CRC color={c} size={s}/>}/></div>
+          {history.length>0&&<Panel style={{padding:12}}><div style={{fontSize:11,color:"#D4AF37",letterSpacing:2,marginBottom:10,fontFamily:"'Cinzel',serif",opacity:0.6,textAlign:"center"}}>最近記錄 ({Math.min(history.length,20)}/{history.length})</div><div style={{display:"flex",gap:5,flexWrap:"wrap",justifyContent:"center"}}>{history.slice(-20).map(h=><div key={h.id} style={{width:30,height:30,borderRadius:8,background:RESULTS[h.result].bg,border:`1.5px solid ${RESULTS[h.result].border}55`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:RESULTS[h.result].color,position:"relative",textShadow:`0 0 6px ${RESULTS[h.result].glow}`}}>{RESULTS[h.result].label}{h.sideBets?.length>0&&<span style={{position:"absolute",top:-3,right:-3,width:7,height:7,borderRadius:"50%",background:"radial-gradient(circle,#FFD700,#B8860B)"}}/>}</div>)}</div></Panel>}
+        </div>
+        <div style={{textAlign:"center",marginTop:24,marginBottom:8}}><div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><div style={{width:50,height:1,background:"linear-gradient(90deg,transparent,rgba(212,175,55,0.3))"}}/><span style={{color:"rgba(212,175,55,0.3)",fontSize:14}}>♠ ♥ ♦ ♣</span><div style={{width:50,height:1,background:"linear-gradient(90deg,rgba(212,175,55,0.3),transparent)"}}/></div></div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
