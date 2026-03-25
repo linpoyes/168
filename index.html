@@ -22,13 +22,6 @@
 .login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%,#2A1810,#150D05 40%,#050402 100%);z-index:9999;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',Georgia,serif;color:#F5E6C8}
 .login-overlay.hidden{display:none}
 .login-box{width:90%;max-width:400px;text-align:center;animation:fu .8s ease}
-.login-icon{font-size:60px;margin-bottom:16px;animation:loginFloat 3s ease-in-out infinite}
-.login-title{font-family:'Cinzel Decorative','Noto Serif TC',serif;font-size:clamp(24px,6vw,36px);font-weight:900;background:linear-gradient(135deg,#B8860B,#FFD700,#FFF8DC,#FFD700,#B8860B);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 4s linear infinite;letter-spacing:3px;margin-bottom:6px}
-.login-sub{font-family:'Cinzel',serif;font-size:11px;color:#D4AF37;letter-spacing:4px;opacity:.5;margin-bottom:30px}
-.login-panel{position:relative;padding:24px;background:linear-gradient(180deg,rgba(30,18,5,.95),rgba(20,12,3,.98));border-radius:14px;border:1px solid rgba(212,175,55,.3);box-shadow:0 8px 40px rgba(0,0,0,.5)}
-.login-panel::before,.login-panel::after{content:'';position:absolute;width:24px;height:24px;border-color:#D4AF37;border-style:solid;opacity:.5}
-.login-panel::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
-.login-panel::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
 .login-input{width:100%;padding:14px 16px;background:rgba(0,0,0,.4);border:1.5px solid rgba(212,175,55,.2);border-radius:10px;color:#FFD740;font-size:16px;font-family:'JetBrains Mono',monospace;letter-spacing:2px;text-align:center;outline:none;transition:all .3s}
 .login-input::placeholder{color:rgba(212,175,55,.2);font-size:13px;letter-spacing:1px}
 .login-input:focus{border-color:rgba(212,175,55,.5);box-shadow:0 0 15px rgba(212,175,55,.15)}
@@ -40,16 +33,20 @@
 .login-remaining.show{display:block}
 .logout-btn{position:fixed;top:12px;right:12px;z-index:100;padding:6px 14px;background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.3);border-radius:8px;color:#FF5252;font-size:11px;cursor:pointer;font-family:'Noto Serif TC',serif;display:none}
 .logout-btn:hover{background:rgba(255,82,82,.2)}
+.login-panel{position:relative;padding:24px;background:linear-gradient(180deg,rgba(30,18,5,.95),rgba(20,12,3,.98));border-radius:14px;border:1px solid rgba(212,175,55,.3);box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.login-panel::before,.login-panel::after{content:'';position:absolute;width:24px;height:24px;border-color:#D4AF37;border-style:solid;opacity:.5}
+.login-panel::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.login-panel::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+#expiryBar{position:fixed;top:0;left:0;right:0;z-index:99;padding:6px 16px;background:linear-gradient(180deg,rgba(20,12,3,0.95),rgba(15,9,2,0.9));border-bottom:1px solid rgba(212,175,55,0.2);display:none;justify-content:space-between;align-items:center;font-family:'Noto Serif TC',serif;backdrop-filter:blur(10px)}
 </style>
 </head>
 <body>
-<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div style="position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(45deg,transparent,transparent 80px,rgba(212,175,55,0.01) 80px,rgba(212,175,55,0.01) 81px),repeating-linear-gradient(-45deg,transparent,transparent 80px,rgba(212,175,55,0.01) 80px,rgba(212,175,55,0.01) 81px)"></div>
   <div class="login-box">
-    <div class="login-icon">🔐</div>
-    <div class="login-title">致富預測系統</div>
-    <div class="login-sub">FORTUNE PREDICTION SYSTEM</div>
+    <div style="font-size:60px;margin-bottom:16px;animation:loginFloat 3s ease-in-out infinite">🔐</div>
+    <div style="font-family:'Cinzel Decorative','Noto Serif TC',serif;font-size:clamp(24px,6vw,36px);font-weight:900;background:linear-gradient(135deg,#B8860B,#FFD700,#FFF8DC,#FFD700,#B8860B);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 4s linear infinite;letter-spacing:3px;margin-bottom:6px">致富預測系統</div>
+    <div style="font-family:'Cinzel',serif;font-size:11px;color:#D4AF37;letter-spacing:4px;opacity:.5;margin-bottom:30px">FORTUNE PREDICTION SYSTEM</div>
     <div class="login-panel">
       <div style="font-size:12px;color:rgba(212,175,55,.6);text-align:left;margin-bottom:8px">請輸入激活序號</div>
       <input class="login-input" id="codeInput" type="text" placeholder="F7-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false"/>
@@ -61,41 +58,67 @@
   </div>
 </div>
 <button class="logout-btn" id="logoutBtn">登出</button>
-<div id="expiryBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99;padding:6px 16px;background:linear-gradient(180deg,rgba(20,12,3,0.95),rgba(15,9,2,0.9));border-bottom:1px solid rgba(212,175,55,0.2);display:none;justify-content:space-between;align-items:center;font-family:'Noto Serif TC',serif;backdrop-filter:blur(10px)"></div>
+<div id="expiryBar"></div>
 <div id="root" style="padding-top:32px"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 
 <script>
-// Login system
-// Device ID - unique per browser
-function getDeviceId(){var id=localStorage.getItem('fortune_device_id');if(!id){id='DEV-'+Date.now()+'-'+Math.random().toString(36).substr(2,8);localStorage.setItem('fortune_device_id',id)}return id}
+firebase.initializeApp({apiKey:"AIzaSyCC4XErgsFWI30Vk0LKwTYypNsRbI6J3Fc",authDomain:"fortune168-2aff0.firebaseapp.com",projectId:"fortune168-2aff0",storageBucket:"fortune168-2aff0.firebasestorage.app",messagingSenderId:"1063619189537",appId:"1:1063619189537:web:f80c62c0238c86df54fc60"});
+var db=firebase.firestore();
+var codesRef=db.collection('codes');
+var activeListener=null;
 
-function checkSession(){var s=localStorage.getItem('fortune_session');if(!s)return false;try{var d=JSON.parse(s);if(Date.now()>d.expiry){localStorage.removeItem('fortune_session');return false}return d}catch(e){return false}}
-function validateCode(code){code=code.trim().toUpperCase();if(!code.match(/^F[37]-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/))return{valid:false,error:'序號格式錯誤'};var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');var d=vc[code];if(!d)return{valid:false,error:'無效的激活序號'};if(Date.now()>d.expiry)return{valid:false,error:'此序號已過期'};var myDevice=getDeviceId();if(d.usedBy&&d.usedBy!==myDevice)return{valid:false,error:'此序號已被其他裝置使用'};return{valid:true,data:d}}
-function handleLogin(){var input=document.getElementById('codeInput'),err=document.getElementById('loginError'),code=input.value.trim().toUpperCase();if(!code){err.textContent='請輸入激活序號';input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}var r=validateCode(code);if(!r.valid){err.textContent=r.error;input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}
-// Lock code to this device
-var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');if(vc[code]&&!vc[code].usedBy){vc[code].usedBy=getDeviceId();localStorage.setItem('valid_codes',JSON.stringify(vc))}
-localStorage.setItem('fortune_session',JSON.stringify({code:code,expiry:r.data.expiry,days:r.data.days,loginTime:Date.now()}));err.textContent='';showApp()}
-function handleLogout(){localStorage.removeItem('fortune_session');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('logoutBtn').style.display='none';document.getElementById('expiryBar').style.display='none';document.getElementById('codeInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginRemaining').classList.remove('show')}
-function showApp(){var s=checkSession();if(!s)return;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('logoutBtn').style.display='block';
-// Show remaining time on login page
-var rem=s.expiry-Date.now(),hrs=Math.floor(rem/3600000),d=Math.floor(hrs/24),h=hrs%24;var el=document.getElementById('loginRemaining');el.textContent='✓ 已激活 | 剩餘時間：'+d+'天'+h+'小時';el.classList.add('show');
-// Show expiry bar in app
-var expiryDate=new Date(s.expiry);var expiryBar=document.getElementById('expiryBar');expiryBar.style.display='flex';
-function updateExpiry(){var now=Date.now();if(now>s.expiry){handleLogout();return}
-// Check if code was deleted by admin
-var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');if(!vc[s.code]){handleLogout();return}
-var r=s.expiry-now;var dd=Math.floor(r/86400000);var hh=Math.floor((r%86400000)/3600000);var mm=Math.floor((r%3600000)/60000);var ss=Math.floor((r%60000)/1000);expiryBar.innerHTML='<span style="color:#D4AF37;font-size:10px;opacity:0.6">到期：'+expiryDate.toLocaleDateString('zh-TW')+' '+expiryDate.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'</span><span style="color:#00E676;font-size:11px;font-weight:700;font-family:JetBrains Mono,monospace">剩餘 '+dd+'天'+hh+'時'+mm+'分'+ss+'秒</span>'}
-updateExpiry();setInterval(updateExpiry,1000);
-if(!window._appInit){window._appInit=true;initApp()}}
+function getDeviceId(){var id=localStorage.getItem('fortune_device_id');if(!id){id='DEV-'+Date.now()+'-'+Math.random().toString(36).substr(2,8);localStorage.setItem('fortune_device_id',id)}return id}
+function getSession(){var s=localStorage.getItem('fortune_session');if(!s)return null;try{var d=JSON.parse(s);if(Date.now()>d.expiry){localStorage.removeItem('fortune_session');return null}return d}catch(e){return null}}
+
+function handleLogin(){
+  var input=document.getElementById('codeInput'),err=document.getElementById('loginError'),code=input.value.trim().toUpperCase();
+  if(!code){err.textContent='請輸入激活序號';input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}
+  if(!code.match(/^F[37]-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)){err.textContent='序號格式錯誤';input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}
+  err.textContent='驗證中...';
+  codesRef.doc(code).get().then(function(doc){
+    if(!doc.exists){err.textContent='無效的激活序號';return}
+    var data=doc.data();
+    if(Date.now()>data.expiry){err.textContent='此序號已過期';return}
+    var myDevice=getDeviceId();
+    if(data.usedBy&&data.usedBy!==myDevice){err.textContent='此序號已被其他裝置使用';return}
+    // Lock to device
+    if(!data.usedBy){codesRef.doc(code).update({usedBy:myDevice})}
+    localStorage.setItem('fortune_session',JSON.stringify({code:code,expiry:data.expiry,days:data.days,loginTime:Date.now()}));
+    err.textContent='';showApp();
+  }).catch(function(e){err.textContent='連線錯誤，請稍後再試'});
+}
+
+function handleLogout(){localStorage.removeItem('fortune_session');if(activeListener)activeListener();document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('logoutBtn').style.display='none';document.getElementById('expiryBar').style.display='none';document.getElementById('codeInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginRemaining').classList.remove('show')}
+
+function showApp(){
+  var s=getSession();if(!s)return;
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('logoutBtn').style.display='block';
+  var rem=s.expiry-Date.now(),hrs=Math.floor(rem/3600000),d=Math.floor(hrs/24),h=hrs%24;
+  var el=document.getElementById('loginRemaining');el.textContent='✓ 已激活 | 剩餘時間：'+d+'天'+h+'小時';el.classList.add('show');
+  var expiryDate=new Date(s.expiry);var expiryBar=document.getElementById('expiryBar');expiryBar.style.display='flex';
+  // Real-time listener: auto logout if code deleted or expired
+  activeListener=codesRef.doc(s.code).onSnapshot(function(doc){
+    if(!doc.exists){handleLogout();return}
+    var data=doc.data();
+    if(Date.now()>data.expiry){handleLogout();return}
+  });
+  function updateExpiry(){var now=Date.now();if(now>s.expiry){handleLogout();return}var r=s.expiry-now;var dd=Math.floor(r/86400000);var hh=Math.floor((r%86400000)/3600000);var mm=Math.floor((r%3600000)/60000);var ss=Math.floor((r%60000)/1000);expiryBar.innerHTML='<span style="color:#D4AF37;font-size:10px;opacity:0.6">到期：'+expiryDate.toLocaleDateString('zh-TW')+' '+expiryDate.toLocaleTimeString('zh-TW',{hour:"2-digit",minute:"2-digit"})+'</span><span style="color:#00E676;font-size:11px;font-weight:700;font-family:JetBrains Mono,monospace">剩餘 '+dd+'天'+hh+'時'+mm+'分'+ss+'秒</span>'}
+  updateExpiry();setInterval(updateExpiry,1000);
+  if(!window._appInit){window._appInit=true;initApp()}
+}
+
 document.getElementById('loginBtn').addEventListener('click',handleLogin);
 document.getElementById('logoutBtn').addEventListener('click',handleLogout);
 document.getElementById('codeInput').addEventListener('input',function(e){var v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v.length>2){var p=v.substring(0,2),r=v.substring(2),parts=[p];for(var i=0;i<r.length;i+=4)parts.push(r.substr(i,4));v=parts.join('-')}e.target.value=v});
 document.getElementById('codeInput').addEventListener('keydown',function(e){if(e.key==='Enter')handleLogin()});
-if(checkSession())showApp();
+var existingSession=getSession();if(existingSession)showApp();
 </script>
 
 <script type="text/babel">
