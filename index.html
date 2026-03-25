@@ -85,7 +85,10 @@ function showApp(){var s=checkSession();if(!s)return;document.getElementById('lo
 var rem=s.expiry-Date.now(),hrs=Math.floor(rem/3600000),d=Math.floor(hrs/24),h=hrs%24;var el=document.getElementById('loginRemaining');el.textContent='✓ 已激活 | 剩餘時間：'+d+'天'+h+'小時';el.classList.add('show');
 // Show expiry bar in app
 var expiryDate=new Date(s.expiry);var expiryBar=document.getElementById('expiryBar');expiryBar.style.display='flex';
-function updateExpiry(){var now=Date.now();if(now>s.expiry){handleLogout();return}var r=s.expiry-now;var dd=Math.floor(r/86400000);var hh=Math.floor((r%86400000)/3600000);var mm=Math.floor((r%3600000)/60000);var ss=Math.floor((r%60000)/1000);expiryBar.innerHTML='<span style="color:#D4AF37;font-size:10px;opacity:0.6">到期：'+expiryDate.toLocaleDateString('zh-TW')+' '+expiryDate.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'</span><span style="color:#00E676;font-size:11px;font-weight:700;font-family:JetBrains Mono,monospace">剩餘 '+dd+'天'+hh+'時'+mm+'分'+ss+'秒</span>'}
+function updateExpiry(){var now=Date.now();if(now>s.expiry){handleLogout();return}
+// Check if code was deleted by admin
+var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');if(!vc[s.code]){handleLogout();return}
+var r=s.expiry-now;var dd=Math.floor(r/86400000);var hh=Math.floor((r%86400000)/3600000);var mm=Math.floor((r%3600000)/60000);var ss=Math.floor((r%60000)/1000);expiryBar.innerHTML='<span style="color:#D4AF37;font-size:10px;opacity:0.6">到期：'+expiryDate.toLocaleDateString('zh-TW')+' '+expiryDate.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'</span><span style="color:#00E676;font-size:11px;font-weight:700;font-family:JetBrains Mono,monospace">剩餘 '+dd+'天'+hh+'時'+mm+'分'+ss+'秒</span>'}
 updateExpiry();setInterval(updateExpiry,1000);
 if(!window._appInit){window._appInit=true;initApp()}}
 document.getElementById('loginBtn').addEventListener('click',handleLogin);
