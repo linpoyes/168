@@ -367,17 +367,37 @@ function renderHistory() {
 
       row.appendChild(top);
 
-      // Code line
+      // Code line + device status
+      var bottomRow = document.createElement('div');
+      bottomRow.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+
       var codeLine = document.createElement('span');
       codeLine.className = 'hcode';
       codeLine.textContent = item.code;
       codeLine.title = '點擊複製';
+      codeLine.style.flex = '1';
       codeLine.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         copyText(item.code);
       });
-      row.appendChild(codeLine);
+      bottomRow.appendChild(codeLine);
+
+      // Check if code is locked to a device
+      var validCodes = JSON.parse(localStorage.getItem('valid_codes') || '{}');
+      var vcData = validCodes[item.code];
+      var deviceBadge = document.createElement('span');
+      deviceBadge.className = 'badge';
+      if (vcData && vcData.usedBy) {
+        deviceBadge.style.cssText = 'background:rgba(255,152,0,0.1);color:#FFA726;border:1px solid rgba(255,152,0,0.3);font-size:9px';
+        deviceBadge.textContent = '🔒 已綁定';
+      } else {
+        deviceBadge.style.cssText = 'background:rgba(255,255,255,0.03);color:rgba(212,175,55,0.35);border:1px solid rgba(212,175,55,0.1);font-size:9px';
+        deviceBadge.textContent = '🔓 未使用';
+      }
+      bottomRow.appendChild(deviceBadge);
+
+      row.appendChild(bottomRow);
 
       container.appendChild(row);
     })(history[i]);
