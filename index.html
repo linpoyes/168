@@ -61,7 +61,8 @@
   </div>
 </div>
 <button class="logout-btn" id="logoutBtn">登出</button>
-<div id="root"></div>
+<div id="expiryBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99;padding:6px 16px;background:linear-gradient(180deg,rgba(20,12,3,0.95),rgba(15,9,2,0.9));border-bottom:1px solid rgba(212,175,55,0.2);display:none;justify-content:space-between;align-items:center;font-family:'Noto Serif TC',serif;backdrop-filter:blur(10px)"></div>
+<div id="root" style="padding-top:32px"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -69,11 +70,24 @@
 
 <script>
 // Login system
+// Device ID - unique per browser
+function getDeviceId(){var id=localStorage.getItem('fortune_device_id');if(!id){id='DEV-'+Date.now()+'-'+Math.random().toString(36).substr(2,8);localStorage.setItem('fortune_device_id',id)}return id}
+
 function checkSession(){var s=localStorage.getItem('fortune_session');if(!s)return false;try{var d=JSON.parse(s);if(Date.now()>d.expiry){localStorage.removeItem('fortune_session');return false}return d}catch(e){return false}}
-function validateCode(code){code=code.trim().toUpperCase();if(!code.match(/^F[37]-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/))return{valid:false,error:'序號格式錯誤'};var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');var d=vc[code];if(!d)return{valid:false,error:'無效的激活序號'};if(Date.now()>d.expiry)return{valid:false,error:'此序號已過期'};return{valid:true,data:d}}
-function handleLogin(){var input=document.getElementById('codeInput'),err=document.getElementById('loginError'),code=input.value.trim().toUpperCase();if(!code){err.textContent='請輸入激活序號';input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}var r=validateCode(code);if(!r.valid){err.textContent=r.error;input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}localStorage.setItem('fortune_session',JSON.stringify({code:code,expiry:r.data.expiry,days:r.data.days,loginTime:Date.now()}));err.textContent='';showApp()}
-function handleLogout(){localStorage.removeItem('fortune_session');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('logoutBtn').style.display='none';document.getElementById('codeInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginRemaining').classList.remove('show')}
-function showApp(){var s=checkSession();if(!s)return;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('logoutBtn').style.display='block';var rem=s.expiry-Date.now(),hrs=Math.floor(rem/3600000),d=Math.floor(hrs/24),h=hrs%24;var el=document.getElementById('loginRemaining');el.textContent='✓ 已激活 | 剩餘時間：'+d+'天'+h+'小時';el.classList.add('show');if(!window._appInit){window._appInit=true;initApp()}}
+function validateCode(code){code=code.trim().toUpperCase();if(!code.match(/^F[37]-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/))return{valid:false,error:'序號格式錯誤'};var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');var d=vc[code];if(!d)return{valid:false,error:'無效的激活序號'};if(Date.now()>d.expiry)return{valid:false,error:'此序號已過期'};var myDevice=getDeviceId();if(d.usedBy&&d.usedBy!==myDevice)return{valid:false,error:'此序號已被其他裝置使用'};return{valid:true,data:d}}
+function handleLogin(){var input=document.getElementById('codeInput'),err=document.getElementById('loginError'),code=input.value.trim().toUpperCase();if(!code){err.textContent='請輸入激活序號';input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}var r=validateCode(code);if(!r.valid){err.textContent=r.error;input.classList.add('shake');setTimeout(function(){input.classList.remove('shake')},500);return}
+// Lock code to this device
+var vc=JSON.parse(localStorage.getItem('valid_codes')||'{}');if(vc[code]&&!vc[code].usedBy){vc[code].usedBy=getDeviceId();localStorage.setItem('valid_codes',JSON.stringify(vc))}
+localStorage.setItem('fortune_session',JSON.stringify({code:code,expiry:r.data.expiry,days:r.data.days,loginTime:Date.now()}));err.textContent='';showApp()}
+function handleLogout(){localStorage.removeItem('fortune_session');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('logoutBtn').style.display='none';document.getElementById('expiryBar').style.display='none';document.getElementById('codeInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginRemaining').classList.remove('show')}
+function showApp(){var s=checkSession();if(!s)return;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('logoutBtn').style.display='block';
+// Show remaining time on login page
+var rem=s.expiry-Date.now(),hrs=Math.floor(rem/3600000),d=Math.floor(hrs/24),h=hrs%24;var el=document.getElementById('loginRemaining');el.textContent='✓ 已激活 | 剩餘時間：'+d+'天'+h+'小時';el.classList.add('show');
+// Show expiry bar in app
+var expiryDate=new Date(s.expiry);var expiryBar=document.getElementById('expiryBar');expiryBar.style.display='flex';
+function updateExpiry(){var now=Date.now();if(now>s.expiry){handleLogout();return}var r=s.expiry-now;var dd=Math.floor(r/86400000);var hh=Math.floor((r%86400000)/3600000);var mm=Math.floor((r%3600000)/60000);var ss=Math.floor((r%60000)/1000);expiryBar.innerHTML='<span style="color:#D4AF37;font-size:10px;opacity:0.6">到期：'+expiryDate.toLocaleDateString('zh-TW')+' '+expiryDate.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'</span><span style="color:#00E676;font-size:11px;font-weight:700;font-family:JetBrains Mono,monospace">剩餘 '+dd+'天'+hh+'時'+mm+'分'+ss+'秒</span>'}
+updateExpiry();setInterval(updateExpiry,1000);
+if(!window._appInit){window._appInit=true;initApp()}}
 document.getElementById('loginBtn').addEventListener('click',handleLogin);
 document.getElementById('logoutBtn').addEventListener('click',handleLogout);
 document.getElementById('codeInput').addEventListener('input',function(e){var v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v.length>2){var p=v.substring(0,2),r=v.substring(2),parts=[p];for(var i=0;i<r.length;i+=4)parts.push(r.substr(i,4));v=parts.join('-')}e.target.value=v});
