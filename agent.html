@@ -31,6 +31,10 @@
 <div class="container" id="MN" style="display:none">
   <div style="text-align:center;margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px"><div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#42A5F5)"></div><span style="color:#42A5F5;font-size:16px">👤</span><div style="width:40px;height:1px;background:linear-gradient(90deg,#42A5F5,transparent)"></div></div><h1 id="welcomeTitle">代理管理系統</h1><div class="sub">AGENT PANEL</div></div>
   <div class="quota" id="quotaInfo">載入中...</div>
+  <div class="panel" style="display:flex;gap:8px;padding:10px 16px;align-items:center">
+    <span style="font-size:12px;color:rgba(66,165,245,.5);flex:1" id="agentNameDisplay"></span>
+    <button class="btn btn-sm" id="CPB" style="background:none;border:1px solid rgba(66,165,245,.3);color:#42A5F5;padding:5px 12px;font-size:11px">🔑 修改密碼</button>
+  </div>
   <div class="panel"><div class="stitle">─── 生成激活序號 ───</div><div class="row"><button class="btn btn-blue" id="G3" style="flex:1">🔑 3天序號</button><button class="btn btn-blue" id="G7" style="flex:1;background:linear-gradient(135deg,#CC5500,#FF6D00);border-color:#FF6D00">🔑 7天序號</button></div><div id="GR" style="display:none" class="item"><div style="font-size:11px;color:rgba(66,165,245,.5);margin-bottom:4px">生成的序號：</div><div class="code" id="GC" style="font-size:14px;padding:8px;background:rgba(66,165,245,.05);border-radius:6px;margin-bottom:8px"></div><div class="row"><input class="inp" id="GN" placeholder="備註名稱"/><button class="btn btn-blue btn-sm" id="GS">💾</button></div><button class="btn btn-blue btn-sm" id="GY" style="width:100%">📋 複製序號</button></div></div>
   <div class="panel"><div class="stitle">─── 我的序號列表 ───</div><div id="MC"></div></div>
   <div class="footer">♠ ♥ ♦ ♣</div>
@@ -63,20 +67,25 @@ function doLogin(){
 
 function showMain(agentData){
   document.getElementById('LO').classList.add('hidden');document.getElementById('MN').style.display='block';document.getElementById('OB').style.display='block';
-  document.getElementById('welcomeTitle').textContent=(agentData?agentData.name:agentUser)+' 的管理面板';
+  var name=agentData?agentData.name:agentUser;
+  document.getElementById('welcomeTitle').textContent=name+' 的管理面板';
+  document.getElementById('agentNameDisplay').textContent='帳號：'+agentUser+'　|　'+name;
   startListen();
 }
 
 function startListen(){
-  // Listen own codes
-  codesRef.where('createdBy','==',agentUser).orderBy('created','desc').onSnapshot(function(snap){
+  // Listen own codes - no orderBy to avoid composite index requirement
+  codesRef.where('createdBy','==',agentUser).onSnapshot(function(snap){
     var used=snap.size;
     document.getElementById('quotaInfo').innerHTML='序號額度：<b>'+used+'</b> / <b>'+agentLimit+'</b> 組';
     var c=document.getElementById('MC');while(c.firstChild)c.removeChild(c.firstChild);
     if(snap.empty){c.innerHTML='<div class="empty">尚無序號</div>';return}
+    // Sort client-side by created desc
+    var items=[];snap.forEach(function(doc){items.push(doc.data())});
+    items.sort(function(a,b){return b.created-a.created});
     var now=Date.now();
-    snap.forEach(function(doc){
-      var d=doc.data(),isE=now>d.expiry,rem=d.expiry-now,hrs=Math.max(0,Math.floor(rem/3600000)),dd=Math.floor(hrs/24),hh=hrs%24,ts=isE?'已過期':'剩餘 '+dd+'天'+hh+'時';
+    items.forEach(function(d){
+      var isE=now>d.expiry,rem=d.expiry-now,hrs=Math.max(0,Math.floor(rem/3600000)),dd=Math.floor(hrs/24),hh=hrs%24,ts=isE?'已過期':'剩餘 '+dd+'天'+hh+'時';
       var it=document.createElement('div');it.className='item';var tp=document.createElement('div');tp.className='item-top';
       var db_=document.createElement('span');db_.className='badge '+(d.days===3?'b3':'b7');db_.textContent=d.days+'天';tp.appendChild(db_);
       var ns=document.createElement('span');ns.className='name';ns.textContent=d.name||'未命名';tp.appendChild(ns);
@@ -110,8 +119,26 @@ if(saved){agentUser=saved;agentsRef.doc(saved).get().then(function(doc){if(doc.e
 document.getElementById('LB').addEventListener('click',doLogin);document.getElementById('OB').addEventListener('click',function(){localStorage.removeItem('agent_s');location.reload()});
 document.getElementById('LU').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('LP').focus()});document.getElementById('LP').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 document.getElementById('G3').addEventListener('click',function(){genCode(3)});document.getElementById('G7').addEventListener('click',function(){genCode(7)});
-document.getElementById('GS').addEventListener('click',function(){var n=document.getElementById('GN').value.trim();if(!n||!curCode)return;codesRef.doc(curCode).update({name:n}).then(function(){toast('已儲存')})});
+document.getElementById('GS').addEventListener('click',function(){
+  var n=document.getElementById('GN').value.trim();
+  if(!n){toast('請輸入名稱');return}
+  if(!curCode){toast('請先生成序號');return}
+  codesRef.doc(curCode).update({name:n}).then(function(){toast('已儲存：'+n)}).catch(function(){toast('儲存失敗')});
+});
 document.getElementById('GY').addEventListener('click',function(){var c=document.getElementById('GC').textContent;if(c)cp(c)});document.getElementById('GC').addEventListener('click',function(){if(this.textContent)cp(this.textContent)});
+document.getElementById('CPB').addEventListener('click',function(){
+  var oldP=prompt('請輸入舊密碼：');
+  if(!oldP)return;
+  agentsRef.doc(agentUser).get().then(function(doc){
+    if(!doc.exists){toast('帳號錯誤');return}
+    if(doc.data().password!==sh(oldP.trim())){toast('舊密碼錯誤');return}
+    var newP=prompt('請輸入新密碼：');
+    if(!newP||!newP.trim()){toast('密碼不能為空');return}
+    var confirmP=prompt('再次輸入新密碼：');
+    if(newP.trim()!==confirmP.trim()){toast('兩次密碼不一致');return}
+    agentsRef.doc(agentUser).update({password:sh(newP.trim())}).then(function(){toast('密碼修改成功！')});
+  });
+});
 </script>
 </body>
 </html>
