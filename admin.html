@@ -11,15 +11,17 @@
 .container{max-width:640px;margin:0 auto}h1{font-family:'Cinzel',serif;font-size:clamp(18px,4vw,28px);font-weight:900;background:linear-gradient(135deg,#B8860B,#FFD700,#FFF8DC,#FFD700,#B8860B);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 4s linear infinite;letter-spacing:3px;text-align:center;margin-bottom:4px}.sub{font-family:'Cinzel',serif;font-size:10px;color:#D4AF37;letter-spacing:4px;opacity:.5;text-align:center;margin-bottom:20px}
 .panel{padding:16px;background:linear-gradient(180deg,rgba(30,18,5,.95),rgba(20,12,3,.98));border-radius:12px;border:1px solid rgba(212,175,55,.3);box-shadow:0 4px 20px rgba(0,0,0,.4);margin-bottom:14px}.stitle{font-size:11px;color:#D4AF37;letter-spacing:3px;text-align:center;font-family:'Cinzel',serif;opacity:.6;margin-bottom:14px}
 .row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.inp{flex:1;min-width:0;padding:10px 12px;background:rgba(0,0,0,.4);border:1.5px solid rgba(212,175,55,.2);border-radius:8px;color:#FFD740;font-size:13px;font-family:'Noto Serif TC',serif;outline:none}.inp:focus{border-color:rgba(212,175,55,.5)}.inp::placeholder{color:rgba(212,175,55,.2)}
+select.inp{appearance:none;-webkit-appearance:none}
 .btn{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Serif TC',serif;transition:all .2s;border:1.5px solid}.btn:active{transform:scale(.97)}.btn-gold{background:linear-gradient(135deg,#B8860B,#D4AF37);border-color:#D4AF37;color:#1A0F05}.btn-sm{padding:3px 8px;font-size:11px;border-radius:5px}
 .item{padding:10px;background:rgba(0,0,0,.25);border:1px solid rgba(212,175,55,.1);border-radius:8px;margin-bottom:8px;animation:fadeIn .3s ease}.item-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
 .badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}.b-agent{background:rgba(68,138,255,.12);color:#448AFF;border:1px solid rgba(68,138,255,.3)}.b-admin{background:rgba(212,175,55,.12);color:#D4AF37;border:1px solid rgba(212,175,55,.3)}.b3{background:rgba(212,175,55,.12);color:#D4AF37;border:1px solid rgba(212,175,55,.3)}.b7{background:rgba(255,109,0,.12);color:#FF6D00;border:1px solid rgba(255,109,0,.3)}.bexp{background:rgba(255,0,0,.08);color:#FF5252;border:1px solid rgba(255,0,0,.2)}.bact{background:rgba(0,230,118,.08);color:#00E676;border:1px solid rgba(0,230,118,.2)}.b-lock{background:rgba(255,152,0,.08);color:#FFA726;border:1px solid rgba(255,152,0,.25);font-size:9px}.b-free{background:rgba(255,255,255,.02);color:rgba(212,175,55,.3);border:1px solid rgba(212,175,55,.1);font-size:9px}
-.name{color:#FFD740;font-size:12px;font-weight:700}.code{font-family:'JetBrains Mono',monospace;color:#FFD740;font-size:11px;cursor:pointer;word-break:break-all}.code:hover{color:#fff}.empty{text-align:center;padding:16px;color:rgba(212,175,55,.25);font-size:12px}
-.tabs{display:flex;gap:0;margin-bottom:16px;border:1px solid rgba(212,175,55,.2);border-radius:10px;overflow:hidden}.tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;background:rgba(0,0,0,.2);color:rgba(212,175,55,.4);border:none}.tab.active{background:rgba(212,175,55,.1);color:#D4AF37}
+.name{color:#FFD740;font-size:12px;font-weight:700}.empty{text-align:center;padding:16px;color:rgba(212,175,55,.25);font-size:12px}
+.tabs{display:flex;gap:0;margin-bottom:16px;border:1px solid rgba(212,175,55,.2);border-radius:10px;overflow:hidden}.tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;background:rgba(0,0,0,.2);color:rgba(212,175,55,.4);border:none}.tab.active{background:rgba(212,175,55,.1);color:#D4AF37}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:rgba(212,175,55,.9);color:#1A0F05;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;transition:transform .3s;z-index:999;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0)}
 .login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%,#1a1205,#0d0a03 50%,#050402 100%);z-index:9999;display:flex;align-items:center;justify-content:center}.login-overlay.hidden{display:none}
 .logout-btn{position:fixed;top:12px;right:12px;z-index:100;padding:6px 14px;background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.3);border-radius:8px;color:#FF5252;font-size:11px;cursor:pointer;font-family:'Noto Serif TC',serif;display:none}
 .footer{text-align:center;margin-top:16px;opacity:.2;font-size:12px;color:#D4AF37}
+.info-row{font-size:11px;color:rgba(212,175,55,.4);margin-top:4px}
 @media(orientation:landscape){body{zoom:.85}}
 </style>
 </head>
@@ -29,60 +31,125 @@
 <div class="toast" id="TT"></div>
 <div class="container" id="MN" style="display:none">
   <div style="text-align:center;margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px"><div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#D4AF37)"></div><span style="color:#D4AF37;font-size:16px">⚙</span><div style="width:40px;height:1px;background:linear-gradient(90deg,#D4AF37,transparent)"></div></div><h1>系統管理中心</h1><div class="sub">ADMIN CONTROL PANEL</div></div>
-  <div class="tabs"><button class="tab active" data-tab="codes">📋 序號管理</button><button class="tab" data-tab="agents">👥 代理管理</button><button class="tab" data-tab="all">📊 全部序號</button></div>
-  <div id="tab-codes">
-    <div class="panel"><div class="stitle">─── 生成激活序號 ───</div><div class="row"><button class="btn btn-gold" id="G3" style="flex:1">🔑 3天序號</button><button class="btn btn-gold" id="G7" style="flex:1;background:linear-gradient(135deg,#CC5500,#FF6D00);border-color:#FF6D00">🔑 7天序號</button></div><div id="GR" style="display:none" class="item"><div style="font-size:11px;color:rgba(212,175,55,.5);margin-bottom:4px">生成的序號：</div><div class="code" id="GC" style="font-size:14px;padding:8px;background:rgba(212,175,55,.05);border-radius:6px;margin-bottom:8px"></div><div class="row"><input class="inp" id="GN" placeholder="備註名稱"/><button class="btn btn-gold btn-sm" id="GS">💾</button></div><button class="btn btn-gold btn-sm" id="GY" style="width:100%">📋 複製序號</button></div></div>
-    <div class="panel"><div class="stitle">─── 管理者的序號 ───</div><div id="AC"></div></div>
+  <div class="tabs"><button class="tab active" data-tab="clients">👤 客戶管理</button><button class="tab" data-tab="agents">👥 代理管理</button><button class="tab" data-tab="all">📊 全部客戶</button></div>
+
+  <!-- Tab: Clients -->
+  <div id="tab-clients">
+    <div class="panel">
+      <div class="stitle">─── 新增客戶帳號 ───</div>
+      <div class="row"><input class="inp" id="CU" placeholder="客戶帳號"/><input class="inp" id="CP" placeholder="客戶密碼"/></div>
+      <div class="row">
+        <input class="inp" id="CN" placeholder="客戶名稱"/>
+        <select class="inp" id="CD" style="flex:0 0 auto;width:110px;text-align:center"><option value="3">3天</option><option value="7">7天</option></select>
+      </div>
+      <button class="btn btn-gold" id="CAB" style="width:100%">➕ 新增客戶</button>
+    </div>
+    <div class="panel"><div class="stitle">─── 管理者的客戶 ───</div><div id="ACL"></div></div>
   </div>
+
+  <!-- Tab: Agents -->
   <div id="tab-agents" style="display:none">
-    <div class="panel"><div class="stitle">─── 新增代理 ───</div><div class="row"><input class="inp" id="AU" placeholder="代理帳號"/><input class="inp" id="AP" placeholder="代理密碼"/></div><div class="row"><input class="inp" id="AL" type="number" placeholder="序號上限" style="flex:1"/><input class="inp" id="AN" placeholder="代理名稱" style="flex:1"/></div><button class="btn btn-gold" id="AA" style="width:100%">➕ 新增代理</button></div>
+    <div class="panel">
+      <div class="stitle">─── 新增代理 ───</div>
+      <div class="row"><input class="inp" id="AU" placeholder="代理帳號"/><input class="inp" id="AP" placeholder="代理密碼"/></div>
+      <div class="row"><input class="inp" id="AL" type="number" placeholder="客戶上限" style="flex:1"/><input class="inp" id="AN" placeholder="代理名稱" style="flex:1"/></div>
+      <button class="btn btn-gold" id="AAB" style="width:100%">➕ 新增代理</button>
+    </div>
     <div class="panel"><div class="stitle">─── 代理列表 ───</div><div id="AGL"></div></div>
   </div>
-  <div id="tab-all" style="display:none"><div class="panel"><div class="stitle">─── 所有序號（含代理）───</div><div id="ALC"></div></div></div>
+
+  <!-- Tab: All -->
+  <div id="tab-all" style="display:none"><div class="panel"><div class="stitle">─── 所有客戶帳號 ───</div><div id="ALCL"></div></div></div>
   <div class="footer">♠ ♥ ♦ ♣</div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCC4XErgsFWI30Vk0LKwTYypNsRbI6J3Fc",authDomain:"fortune168-2aff0.firebaseapp.com",projectId:"fortune168-2aff0",storageBucket:"fortune168-2aff0.firebasestorage.app",messagingSenderId:"1063619189537",appId:"1:1063619189537:web:f80c62c0238c86df54fc60"});
-var db=firebase.firestore(),codesRef=db.collection('codes'),agentsRef=db.collection('agents'),curCode=null;
+var db=firebase.firestore(),clientsRef=db.collection('clients'),agentsRef=db.collection('agents');
 function toast(m){var t=document.getElementById('TT');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
-function cp(t){navigator.clipboard?navigator.clipboard.writeText(t).then(function(){toast('已複製！')}):toast('複製失敗')}
-function gc(d){var n=Date.now();var c=btoa(d+'|'+n).replace(/[^A-Za-z0-9]/g,'').toUpperCase();var p=d===3?'F3':'F7';var ps=[];for(var i=0;i<c.length&&ps.length<4;i+=4)ps.push(c.substr(i,4));while(ps.length<4)ps.push(Math.random().toString(36).substr(2,4).toUpperCase());return p+'-'+ps.join('-')}
 function sh(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h}return h.toString()}
 var AUH=sh('72839168'),APH=sh('85379150');
 function doLogin(){var u=document.getElementById('LU').value.trim(),p=document.getElementById('LP').value.trim();if(!u||!p){document.getElementById('LE').textContent='請輸入帳號和密碼';return}if(sh(u)===AUH&&sh(p)===APH){localStorage.setItem('admin_s',JSON.stringify({t:Date.now()}));showMain()}else{document.getElementById('LE').textContent='帳號或密碼錯誤'}}
 function showMain(){document.getElementById('LO').classList.add('hidden');document.getElementById('MN').style.display='block';document.getElementById('OB').style.display='block';startListen()}
 function chk(){var s=localStorage.getItem('admin_s');if(!s)return false;try{return Date.now()-JSON.parse(s).t<86400000}catch(e){return false}}
-document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});t.classList.add('active');var tg=t.getAttribute('data-tab');['codes','agents','all'].forEach(function(id){document.getElementById('tab-'+id).style.display=id===tg?'block':'none'})})});
-function genCode(d){var code=gc(d),now=new Date(),exp=new Date(now.getTime()+d*86400000);curCode=code;document.getElementById('GC').textContent=code;document.getElementById('GN').value='';document.getElementById('GR').style.display='block';codesRef.doc(code).set({code:code,days:d,name:'',created:now.getTime(),expiry:exp.getTime(),usedBy:null,createdBy:'admin'}).then(function(){toast('序號生成成功！')})}
-function addAgent(){var u=document.getElementById('AU').value.trim(),p=document.getElementById('AP').value.trim(),l=parseInt(document.getElementById('AL').value)||10,n=document.getElementById('AN').value.trim()||u;if(!u||!p){toast('請輸入帳號和密碼');return}agentsRef.doc(u).get().then(function(doc){if(doc.exists){toast('帳號已存在');return}return agentsRef.doc(u).set({username:u,password:sh(p),name:n,limit:l,created:Date.now(),active:true})}).then(function(){document.getElementById('AU').value='';document.getElementById('AP').value='';document.getElementById('AL').value='';document.getElementById('AN').value='';toast('代理新增成功')})}
-function startListen(){codesRef.where('createdBy','==','admin').onSnapshot(function(s){rCodes(s,'AC',true)});agentsRef.onSnapshot(function(s){rAgents(s)});codesRef.onSnapshot(function(s){rCodes(s,'ALC',true,true)})}
-function rCodes(snap,cid,act,showWho){var c=document.getElementById(cid);while(c.firstChild)c.removeChild(c.firstChild);if(snap.empty){c.innerHTML='<div class="empty">尚無序號</div>';return}var now=Date.now();var items=[];snap.forEach(function(doc){items.push(doc.data())});items.sort(function(a,b){return b.created-a.created});items.forEach(function(d){var isE=now>d.expiry,rem=d.expiry-now,hrs=Math.max(0,Math.floor(rem/3600000)),dd=Math.floor(hrs/24),hh=hrs%24,ts=isE?'已過期':'剩餘 '+dd+'天'+hh+'時';
-var it=document.createElement('div');it.className='item';var tp=document.createElement('div');tp.className='item-top';
-var db_=document.createElement('span');db_.className='badge '+(d.days===3?'b3':'b7');db_.textContent=d.days+'天';tp.appendChild(db_);
-if(showWho){var wb=document.createElement('span');wb.className='badge '+(d.createdBy==='admin'?'b-admin':'b-agent');wb.textContent=d.createdBy==='admin'?'管理者':d.createdBy;tp.appendChild(wb)}
-var ns=document.createElement('span');ns.className='name';ns.textContent=d.name||'未命名';tp.appendChild(ns);
-if(act){var eb=document.createElement('button');eb.className='btn btn-sm';eb.style.cssText='background:none;border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);padding:2px 8px;font-size:11px';eb.textContent='✏️';eb.addEventListener('click',function(){var n=prompt('名稱：',d.name||'');if(n!==null)codesRef.doc(d.code).update({name:n.trim()}).then(function(){toast('已更新')})});tp.appendChild(eb);
-var dlb=document.createElement('button');dlb.className='btn btn-sm';dlb.style.cssText='background:none;border:1px solid rgba(255,82,82,.2);color:rgba(255,82,82,.6);padding:2px 8px;font-size:11px';dlb.textContent='🗑';dlb.addEventListener('click',function(){if(confirm('刪除？'))codesRef.doc(d.code).delete().then(function(){toast('已刪除')})});tp.appendChild(dlb)}
-var sp=document.createElement('span');sp.style.flex='1';tp.appendChild(sp);var sb=document.createElement('span');sb.className='badge '+(isE?'bexp':'bact');sb.textContent=ts;tp.appendChild(sb);it.appendChild(tp);
-var bt=document.createElement('div');bt.style.cssText='display:flex;align-items:center;gap:6px';var cs=document.createElement('span');cs.className='code';cs.textContent=d.code;cs.style.flex='1';cs.addEventListener('click',function(){cp(d.code)});bt.appendChild(cs);var dv=document.createElement('span');dv.className='badge '+(d.usedBy?'b-lock':'b-free');dv.textContent=d.usedBy?'🔒 已綁定':'🔓 未使用';bt.appendChild(dv);it.appendChild(bt);c.appendChild(it)})}
-function rAgents(snap){var c=document.getElementById('AGL');while(c.firstChild)c.removeChild(c.firstChild);if(snap.empty){c.innerHTML='<div class="empty">尚無代理</div>';return}snap.forEach(function(doc){var d=doc.data(),it=document.createElement('div');it.className='item';var tp=document.createElement('div');tp.className='item-top';
-var ns=document.createElement('span');ns.className='name';ns.textContent=d.name+' ('+d.username+')';tp.appendChild(ns);
-var lb=document.createElement('span');lb.className='badge b-agent';lb.textContent='上限 '+d.limit+' 組';tp.appendChild(lb);
-var eb=document.createElement('button');eb.className='btn btn-sm';eb.style.cssText='background:none;border:1px solid rgba(68,138,255,.2);color:#448AFF;padding:2px 8px;font-size:11px';eb.textContent='✏️上限';eb.addEventListener('click',function(){var n=prompt('序號上限：',d.limit);if(n!==null&&!isNaN(parseInt(n)))agentsRef.doc(d.username).update({limit:parseInt(n)}).then(function(){toast('已更新')})});tp.appendChild(eb);
-var pb=document.createElement('button');pb.className='btn btn-sm';pb.style.cssText='background:none;border:1px solid rgba(212,175,55,.2);color:#D4AF37;padding:2px 8px;font-size:11px';pb.textContent='🔑改密碼';pb.addEventListener('click',function(){var n=prompt('新密碼：');if(n&&n.trim())agentsRef.doc(d.username).update({password:sh(n.trim())}).then(function(){toast('密碼已更新')})});tp.appendChild(pb);
-var dlb=document.createElement('button');dlb.className='btn btn-sm';dlb.style.cssText='background:none;border:1px solid rgba(255,82,82,.2);color:#FF5252;padding:2px 8px;font-size:11px';dlb.textContent='🗑刪除';dlb.addEventListener('click',function(){if(confirm('刪除代理 '+d.name+'？'))agentsRef.doc(d.username).delete().then(function(){toast('已刪除')})});tp.appendChild(dlb);
-var sp=document.createElement('span');sp.style.flex='1';tp.appendChild(sp);
-var stb=document.createElement('span');stb.className='badge bact';stb.textContent='✓ 啟用';tp.appendChild(stb);it.appendChild(tp);
-(function(u,el,lim){codesRef.where('createdBy','==',u).get().then(function(s){var inf=document.createElement('div');inf.style.cssText='font-size:11px;color:rgba(212,175,55,.4);margin-top:4px';inf.textContent='已生成：'+s.size+' / '+lim+' 組';el.appendChild(inf)})})(d.username,it,d.limit);
-c.appendChild(it)})}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});t.classList.add('active');var tg=t.getAttribute('data-tab');['clients','agents','all'].forEach(function(id){document.getElementById('tab-'+id).style.display=id===tg?'block':'none'})})});
+
+// Add Client
+function addClient(){
+  var u=document.getElementById('CU').value.trim(),p=document.getElementById('CP').value.trim(),n=document.getElementById('CN').value.trim()||u,d=parseInt(document.getElementById('CD').value)||3;
+  if(!u||!p){toast('請輸入帳號和密碼');return}
+  clientsRef.doc(u).get().then(function(doc){
+    if(doc.exists){toast('帳號已存在');return}
+    var now=Date.now(),exp=now+d*86400000;
+    return clientsRef.doc(u).set({username:u,password:sh(p),name:n,days:d,created:now,expiry:exp,createdBy:'admin',usedBy:null,active:true});
+  }).then(function(){document.getElementById('CU').value='';document.getElementById('CP').value='';document.getElementById('CN').value='';toast('客戶新增成功：'+n)});
+}
+
+// Add Agent
+function addAgent(){
+  var u=document.getElementById('AU').value.trim(),p=document.getElementById('AP').value.trim(),l=parseInt(document.getElementById('AL').value)||10,n=document.getElementById('AN').value.trim()||u;
+  if(!u||!p){toast('請輸入帳號和密碼');return}
+  agentsRef.doc(u).get().then(function(doc){if(doc.exists){toast('帳號已存在');return}return agentsRef.doc(u).set({username:u,password:sh(p),name:n,limit:l,created:Date.now(),active:true})}).then(function(){document.getElementById('AU').value='';document.getElementById('AP').value='';document.getElementById('AL').value='';document.getElementById('AN').value='';toast('代理新增成功')});
+}
+
+function startListen(){
+  clientsRef.where('createdBy','==','admin').onSnapshot(function(s){rClients(s,'ACL')});
+  agentsRef.onSnapshot(function(s){rAgents(s)});
+  clientsRef.onSnapshot(function(s){rClients(s,'ALCL',true)});
+}
+
+function rClients(snap,cid,showWho){
+  var c=document.getElementById(cid);while(c.firstChild)c.removeChild(c.firstChild);
+  if(snap.empty){c.innerHTML='<div class="empty">尚無客戶</div>';return}
+  var items=[];snap.forEach(function(doc){items.push(doc.data())});items.sort(function(a,b){return b.created-a.created});
+  var now=Date.now();
+  items.forEach(function(d){
+    var isE=now>d.expiry,rem=d.expiry-now,hrs=Math.max(0,Math.floor(rem/3600000)),dd=Math.floor(hrs/24),hh=hrs%24,ts=isE?'已過期':'剩餘 '+dd+'天'+hh+'時';
+    var it=document.createElement('div');it.className='item';var tp=document.createElement('div');tp.className='item-top';
+    var db_=document.createElement('span');db_.className='badge '+(d.days===3?'b3':'b7');db_.textContent=d.days+'天';tp.appendChild(db_);
+    if(showWho){var wb=document.createElement('span');wb.className='badge '+(d.createdBy==='admin'?'b-admin':'b-agent');wb.textContent=d.createdBy==='admin'?'管理者':d.createdBy;tp.appendChild(wb)}
+    var ns=document.createElement('span');ns.className='name';ns.textContent=d.name+' ('+d.username+')';tp.appendChild(ns);
+    // Edit name
+    var eb=document.createElement('button');eb.className='btn btn-sm';eb.style.cssText='background:none;border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);padding:2px 8px;font-size:11px';eb.textContent='✏️';eb.addEventListener('click',function(){var n=prompt('名稱：',d.name||'');if(n!==null)clientsRef.doc(d.username).update({name:n.trim()}).then(function(){toast('已更新')})});tp.appendChild(eb);
+    // Reset password
+    var rpb=document.createElement('button');rpb.className='btn btn-sm';rpb.style.cssText='background:none;border:1px solid rgba(212,175,55,.2);color:#D4AF37;padding:2px 8px;font-size:11px';rpb.textContent='🔑';rpb.addEventListener('click',function(){var n=prompt('新密碼：');if(n&&n.trim())clientsRef.doc(d.username).update({password:sh(n.trim())}).then(function(){toast('密碼已更新')})});tp.appendChild(rpb);
+    // Renew
+    var rnb=document.createElement('button');rnb.className='btn btn-sm';rnb.style.cssText='background:none;border:1px solid rgba(0,230,118,.2);color:#00E676;padding:2px 8px;font-size:11px';rnb.textContent='🔄續期';rnb.addEventListener('click',function(){var nd=prompt('續期天數（3或7）：',d.days);if(nd&&!isNaN(parseInt(nd))){var newExp=Date.now()+parseInt(nd)*86400000;clientsRef.doc(d.username).update({expiry:newExp,days:parseInt(nd)}).then(function(){toast('已續期 '+nd+'天')})}});tp.appendChild(rnb);
+    // Delete
+    var dlb=document.createElement('button');dlb.className='btn btn-sm';dlb.style.cssText='background:none;border:1px solid rgba(255,82,82,.2);color:#FF5252;padding:2px 8px;font-size:11px';dlb.textContent='🗑';dlb.addEventListener('click',function(){if(confirm('刪除客戶 '+d.name+'？'))clientsRef.doc(d.username).delete().then(function(){toast('已刪除')})});tp.appendChild(dlb);
+    var sp=document.createElement('span');sp.style.flex='1';tp.appendChild(sp);
+    var stb=document.createElement('span');stb.className='badge '+(isE?'bexp':'bact');stb.textContent=ts;tp.appendChild(stb);it.appendChild(tp);
+    // Device info
+    var inf=document.createElement('div');inf.className='info-row';inf.textContent=(d.usedBy?'🔒 已綁定裝置':'🔓 未登入');
+    var expD=new Date(d.expiry);inf.textContent+='　|　到期：'+expD.toLocaleDateString('zh-TW')+' '+expD.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+    it.appendChild(inf);c.appendChild(it);
+  });
+}
+
+function rAgents(snap){
+  var c=document.getElementById('AGL');while(c.firstChild)c.removeChild(c.firstChild);
+  if(snap.empty){c.innerHTML='<div class="empty">尚無代理</div>';return}
+  var items=[];snap.forEach(function(doc){items.push(doc.data())});items.sort(function(a,b){return b.created-a.created});
+  items.forEach(function(d){
+    var it=document.createElement('div');it.className='item';var tp=document.createElement('div');tp.className='item-top';
+    var ns=document.createElement('span');ns.className='name';ns.textContent=d.name+' ('+d.username+')';tp.appendChild(ns);
+    var lb=document.createElement('span');lb.className='badge b-agent';lb.textContent='上限 '+d.limit+' 組';tp.appendChild(lb);
+    var eb=document.createElement('button');eb.className='btn btn-sm';eb.style.cssText='background:none;border:1px solid rgba(68,138,255,.2);color:#448AFF;padding:2px 8px;font-size:11px';eb.textContent='✏️上限';eb.addEventListener('click',function(){var n=prompt('客戶上限：',d.limit);if(n!==null&&!isNaN(parseInt(n)))agentsRef.doc(d.username).update({limit:parseInt(n)}).then(function(){toast('已更新')})});tp.appendChild(eb);
+    var pb=document.createElement('button');pb.className='btn btn-sm';pb.style.cssText='background:none;border:1px solid rgba(212,175,55,.2);color:#D4AF37;padding:2px 8px;font-size:11px';pb.textContent='🔑改密碼';pb.addEventListener('click',function(){var n=prompt('新密碼：');if(n&&n.trim())agentsRef.doc(d.username).update({password:sh(n.trim())}).then(function(){toast('已更新')})});tp.appendChild(pb);
+    var dlb=document.createElement('button');dlb.className='btn btn-sm';dlb.style.cssText='background:none;border:1px solid rgba(255,82,82,.2);color:#FF5252;padding:2px 8px;font-size:11px';dlb.textContent='🗑刪除';dlb.addEventListener('click',function(){if(confirm('刪除代理 '+d.name+'？'))agentsRef.doc(d.username).delete().then(function(){toast('已刪除')})});tp.appendChild(dlb);
+    var sp=document.createElement('span');sp.style.flex='1';tp.appendChild(sp);
+    var stb=document.createElement('span');stb.className='badge bact';stb.textContent='✓ 啟用';tp.appendChild(stb);it.appendChild(tp);
+    (function(u,el,lim){clientsRef.where('createdBy','==',u).get().then(function(s){var inf=document.createElement('div');inf.className='info-row';inf.textContent='已建立客戶：'+s.size+' / '+lim+' 組';el.appendChild(inf)})})(d.username,it,d.limit);
+    c.appendChild(it);
+  });
+}
+
 document.getElementById('LB').addEventListener('click',doLogin);document.getElementById('OB').addEventListener('click',function(){localStorage.removeItem('admin_s');location.reload()});
 document.getElementById('LU').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('LP').focus()});document.getElementById('LP').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
-document.getElementById('G3').addEventListener('click',function(){genCode(3)});document.getElementById('G7').addEventListener('click',function(){genCode(7)});
-document.getElementById('GS').addEventListener('click',function(){var n=document.getElementById('GN').value.trim();if(!n||!curCode)return;codesRef.doc(curCode).update({name:n}).then(function(){toast('已儲存')})});
-document.getElementById('GY').addEventListener('click',function(){var c=document.getElementById('GC').textContent;if(c)cp(c)});document.getElementById('GC').addEventListener('click',function(){if(this.textContent)cp(this.textContent)});
-document.getElementById('AA').addEventListener('click',addAgent);
+document.getElementById('CAB').addEventListener('click',addClient);document.getElementById('AAB').addEventListener('click',addAgent);
 if(chk())showMain();
 </script>
 </body>
