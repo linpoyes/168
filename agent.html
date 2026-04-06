@@ -11,12 +11,13 @@
 .container{max-width:600px;margin:0 auto}h1{font-family:'Cinzel',serif;font-size:clamp(18px,4vw,28px);font-weight:900;background:linear-gradient(135deg,#1565C0,#42A5F5,#E3F2FD,#42A5F5,#1565C0);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 4s linear infinite;letter-spacing:3px;text-align:center;margin-bottom:4px}.sub{font-family:'Cinzel',serif;font-size:10px;color:#42A5F5;letter-spacing:4px;opacity:.5;text-align:center;margin-bottom:20px}
 .panel{padding:16px;background:linear-gradient(180deg,rgba(10,20,35,.95),rgba(5,10,20,.98));border-radius:12px;border:1px solid rgba(66,165,245,.25);box-shadow:0 4px 20px rgba(0,0,0,.4);margin-bottom:14px}.stitle{font-size:11px;color:#42A5F5;letter-spacing:3px;text-align:center;font-family:'Cinzel',serif;opacity:.6;margin-bottom:14px}
 .row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.inp{flex:1;min-width:0;padding:10px 12px;background:rgba(0,0,0,.4);border:1.5px solid rgba(66,165,245,.2);border-radius:8px;color:#90CAF9;font-size:13px;font-family:'Noto Serif TC',serif;outline:none}.inp:focus{border-color:rgba(66,165,245,.5)}.inp::placeholder{color:rgba(66,165,245,.2)}
+select.inp{appearance:none;-webkit-appearance:none}
 .btn{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Serif TC',serif;transition:all .2s;border:1.5px solid}.btn:active{transform:scale(.97)}.btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);border-color:#42A5F5;color:#fff}.btn-sm{padding:3px 8px;font-size:11px;border-radius:5px}
 .item{padding:10px;background:rgba(0,0,0,.25);border:1px solid rgba(66,165,245,.1);border-radius:8px;margin-bottom:8px;animation:fadeIn .3s ease}.item-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
 .badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}.b3{background:rgba(66,165,245,.12);color:#42A5F5;border:1px solid rgba(66,165,245,.3)}.b7{background:rgba(255,109,0,.12);color:#FF6D00;border:1px solid rgba(255,109,0,.3)}.bexp{background:rgba(255,0,0,.08);color:#FF5252;border:1px solid rgba(255,0,0,.2)}.bact{background:rgba(0,230,118,.08);color:#00E676;border:1px solid rgba(0,230,118,.2)}.b-lock{background:rgba(255,152,0,.08);color:#FFA726;border:1px solid rgba(255,152,0,.25);font-size:9px}.b-free{background:rgba(255,255,255,.02);color:rgba(66,165,245,.3);border:1px solid rgba(66,165,245,.1);font-size:9px}
-.name{color:#90CAF9;font-size:12px;font-weight:700}.code{font-family:'JetBrains Mono',monospace;color:#90CAF9;font-size:11px;cursor:pointer;word-break:break-all}.code:hover{color:#fff}.empty{text-align:center;padding:16px;color:rgba(66,165,245,.25);font-size:12px}
-.quota{text-align:center;padding:12px;background:rgba(66,165,245,.05);border:1px solid rgba(66,165,245,.15);border-radius:10px;margin-bottom:14px;font-size:13px;color:#42A5F5}
-.quota b{font-size:20px;color:#90CAF9;font-family:'JetBrains Mono',monospace}
+.name{color:#90CAF9;font-size:12px;font-weight:700}.empty{text-align:center;padding:16px;color:rgba(66,165,245,.25);font-size:12px}
+.quota{text-align:center;padding:12px;background:rgba(66,165,245,.05);border:1px solid rgba(66,165,245,.15);border-radius:10px;margin-bottom:14px;font-size:13px;color:#42A5F5}.quota b{font-size:20px;color:#90CAF9;font-family:'JetBrains Mono',monospace}
+.info-row{font-size:11px;color:rgba(66,165,245,.4);margin-top:4px}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:rgba(66,165,245,.9);color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;transition:transform .3s;z-index:999;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0)}
 .login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%,#0d1520,#060b12 50%,#030508 100%);z-index:9999;display:flex;align-items:center;justify-content:center}.login-overlay.hidden{display:none}
 .logout-btn{position:fixed;top:12px;right:12px;z-index:100;padding:6px 14px;background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.3);border-radius:8px;color:#FF5252;font-size:11px;cursor:pointer;font-family:'Noto Serif TC',serif;display:none}
@@ -29,25 +30,28 @@
 <button class="logout-btn" id="OB">登出</button>
 <div class="toast" id="TT"></div>
 <div class="container" id="MN" style="display:none">
-  <div style="text-align:center;margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px"><div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#42A5F5)"></div><span style="color:#42A5F5;font-size:16px">👤</span><div style="width:40px;height:1px;background:linear-gradient(90deg,#42A5F5,transparent)"></div></div><h1 id="welcomeTitle">代理管理系統</h1><div class="sub">AGENT PANEL</div></div>
-  <div class="quota" id="quotaInfo">載入中...</div>
-  <div class="panel" style="display:flex;gap:8px;padding:10px 16px;align-items:center">
-    <span style="font-size:12px;color:rgba(66,165,245,.5);flex:1" id="agentNameDisplay"></span>
-    <button class="btn btn-sm" id="CPB" style="background:none;border:1px solid rgba(66,165,245,.3);color:#42A5F5;padding:5px 12px;font-size:11px">🔑 修改密碼</button>
+  <div style="text-align:center;margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px"><div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#42A5F5)"></div><span style="color:#42A5F5;font-size:16px">👤</span><div style="width:40px;height:1px;background:linear-gradient(90deg,#42A5F5,transparent)"></div></div><h1 id="WT">代理管理系統</h1><div class="sub">AGENT PANEL</div></div>
+  <div class="panel" style="display:flex;gap:8px;padding:10px 16px;align-items:center"><span style="font-size:12px;color:rgba(66,165,245,.5);flex:1" id="AI"></span><button class="btn btn-sm" id="CPB" style="background:none;border:1px solid rgba(66,165,245,.3);color:#42A5F5;padding:5px 12px;font-size:11px">🔑 修改密碼</button></div>
+  <div class="quota" id="QI">載入中...</div>
+  <div class="panel">
+    <div class="stitle">─── 新增客戶帳號 ───</div>
+    <div class="row"><input class="inp" id="CU" placeholder="客戶帳號"/><input class="inp" id="CP2" placeholder="客戶密碼"/></div>
+    <div class="row">
+      <input class="inp" id="CN" placeholder="客戶名稱"/>
+      <select class="inp" id="CD" style="flex:0 0 auto;width:110px;text-align:center"><option value="3">3天</option><option value="7">7天</option></select>
+    </div>
+    <button class="btn btn-blue" id="CAB" style="width:100%">➕ 新增客戶</button>
   </div>
-  <div class="panel"><div class="stitle">─── 生成激活序號 ───</div><div class="row"><button class="btn btn-blue" id="G3" style="flex:1">🔑 3天序號</button><button class="btn btn-blue" id="G7" style="flex:1;background:linear-gradient(135deg,#CC5500,#FF6D00);border-color:#FF6D00">🔑 7天序號</button></div><div id="GR" style="display:none" class="item"><div style="font-size:11px;color:rgba(66,165,245,.5);margin-bottom:4px">生成的序號：</div><div class="code" id="GC" style="font-size:14px;padding:8px;background:rgba(66,165,245,.05);border-radius:6px;margin-bottom:8px"></div><div class="row"><input class="inp" id="GN" placeholder="備註名稱"/><button class="btn btn-blue btn-sm" id="GS">💾</button></div><button class="btn btn-blue btn-sm" id="GY" style="width:100%">📋 複製序號</button></div></div>
-  <div class="panel"><div class="stitle">─── 我的序號列表 ───</div><div id="MC"></div></div>
+  <div class="panel"><div class="stitle">─── 我的客戶列表 ───</div><div id="MCL"></div></div>
   <div class="footer">♠ ♥ ♦ ♣</div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCC4XErgsFWI30Vk0LKwTYypNsRbI6J3Fc",authDomain:"fortune168-2aff0.firebaseapp.com",projectId:"fortune168-2aff0",storageBucket:"fortune168-2aff0.firebasestorage.app",messagingSenderId:"1063619189537",appId:"1:1063619189537:web:f80c62c0238c86df54fc60"});
-var db=firebase.firestore(),codesRef=db.collection('codes'),agentsRef=db.collection('agents');
-var agentUser=null,agentLimit=10,curCode=null;
+var db=firebase.firestore(),clientsRef=db.collection('clients'),agentsRef=db.collection('agents');
+var agentUser=null,agentLimit=10;
 function toast(m){var t=document.getElementById('TT');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
-function cp(t){navigator.clipboard?navigator.clipboard.writeText(t).then(function(){toast('已複製！')}):toast('複製失敗')}
-function gc(d){var n=Date.now();var c=btoa(d+'|'+n).replace(/[^A-Za-z0-9]/g,'').toUpperCase();var p=d===3?'F3':'F7';var ps=[];for(var i=0;i<c.length&&ps.length<4;i+=4)ps.push(c.substr(i,4));while(ps.length<4)ps.push(Math.random().toString(36).substr(2,4).toUpperCase());return p+'-'+ps.join('-')}
 function sh(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h}return h.toString()}
 
 function doLogin(){
@@ -56,86 +60,77 @@ function doLogin(){
   document.getElementById('LE').textContent='驗證中...';
   agentsRef.doc(u).get().then(function(doc){
     if(!doc.exists){document.getElementById('LE').textContent='帳號不存在';return}
-    var d=doc.data();
-    if(d.password!==sh(p)){document.getElementById('LE').textContent='密碼錯誤';return}
+    var d=doc.data();if(d.password!==sh(p)){document.getElementById('LE').textContent='密碼錯誤';return}
     if(!d.active){document.getElementById('LE').textContent='此帳號已停用';return}
     agentUser=u;agentLimit=d.limit||10;
-    localStorage.setItem('agent_s',JSON.stringify({u:u,t:Date.now()}));
-    showMain(d);
+    localStorage.setItem('agent_s',JSON.stringify({u:u,t:Date.now()}));showMain(d);
   }).catch(function(){document.getElementById('LE').textContent='連線錯誤'});
 }
 
-function showMain(agentData){
+function showMain(ad){
   document.getElementById('LO').classList.add('hidden');document.getElementById('MN').style.display='block';document.getElementById('OB').style.display='block';
-  var name=agentData?agentData.name:agentUser;
-  document.getElementById('welcomeTitle').textContent=name+' 的管理面板';
-  document.getElementById('agentNameDisplay').textContent='帳號：'+agentUser+'　|　'+name;
+  document.getElementById('WT').textContent=(ad?ad.name:agentUser)+' 的管理面板';
+  document.getElementById('AI').textContent='帳號：'+agentUser+'　|　'+(ad?ad.name:agentUser);
   startListen();
 }
 
+function addClient(){
+  var u=document.getElementById('CU').value.trim(),p=document.getElementById('CP2').value.trim(),n=document.getElementById('CN').value.trim()||u,d=parseInt(document.getElementById('CD').value)||3;
+  if(!u||!p){toast('請輸入帳號和密碼');return}
+  // Check quota
+  clientsRef.where('createdBy','==',agentUser).get().then(function(snap){
+    if(snap.size>=agentLimit){toast('已達客戶上限（'+agentLimit+' 組）');return}
+    return clientsRef.doc(u).get();
+  }).then(function(doc){
+    if(!doc)return;
+    if(doc.exists){toast('帳號已存在');return}
+    var now=Date.now(),exp=now+d*86400000;
+    return clientsRef.doc(u).set({username:u,password:sh(p),name:n,days:d,created:now,expiry:exp,createdBy:agentUser,usedBy:null,active:true});
+  }).then(function(){document.getElementById('CU').value='';document.getElementById('CP2').value='';document.getElementById('CN').value='';toast('客戶新增成功：'+n)});
+}
+
 function startListen(){
-  // Listen own codes - no orderBy to avoid composite index requirement
-  codesRef.where('createdBy','==',agentUser).onSnapshot(function(snap){
+  clientsRef.where('createdBy','==',agentUser).onSnapshot(function(snap){
     var used=snap.size;
-    document.getElementById('quotaInfo').innerHTML='序號額度：<b>'+used+'</b> / <b>'+agentLimit+'</b> 組';
-    var c=document.getElementById('MC');while(c.firstChild)c.removeChild(c.firstChild);
-    if(snap.empty){c.innerHTML='<div class="empty">尚無序號</div>';return}
-    // Sort client-side by created desc
-    var items=[];snap.forEach(function(doc){items.push(doc.data())});
-    items.sort(function(a,b){return b.created-a.created});
+    document.getElementById('QI').innerHTML='客戶額度：<b>'+used+'</b> / <b>'+agentLimit+'</b> 組';
+    var c=document.getElementById('MCL');while(c.firstChild)c.removeChild(c.firstChild);
+    if(snap.empty){c.innerHTML='<div class="empty">尚無客戶</div>';return}
+    var items=[];snap.forEach(function(doc){items.push(doc.data())});items.sort(function(a,b){return b.created-a.created});
     var now=Date.now();
     items.forEach(function(d){
       var isE=now>d.expiry,rem=d.expiry-now,hrs=Math.max(0,Math.floor(rem/3600000)),dd=Math.floor(hrs/24),hh=hrs%24,ts=isE?'已過期':'剩餘 '+dd+'天'+hh+'時';
       var it=document.createElement('div');it.className='item';var tp=document.createElement('div');tp.className='item-top';
       var db_=document.createElement('span');db_.className='badge '+(d.days===3?'b3':'b7');db_.textContent=d.days+'天';tp.appendChild(db_);
-      var ns=document.createElement('span');ns.className='name';ns.textContent=d.name||'未命名';tp.appendChild(ns);
-      var eb=document.createElement('button');eb.className='btn btn-sm';eb.style.cssText='background:none;border:1px solid rgba(66,165,245,.2);color:#42A5F5;padding:2px 8px;font-size:11px';eb.textContent='✏️';eb.addEventListener('click',function(){var n=prompt('名稱：',d.name||'');if(n!==null)codesRef.doc(d.code).update({name:n.trim()}).then(function(){toast('已更新')})});tp.appendChild(eb);
-      var dlb=document.createElement('button');dlb.className='btn btn-sm';dlb.style.cssText='background:none;border:1px solid rgba(255,82,82,.2);color:#FF5252;padding:2px 8px;font-size:11px';dlb.textContent='🗑';dlb.addEventListener('click',function(){if(confirm('刪除？'))codesRef.doc(d.code).delete().then(function(){toast('已刪除')})});tp.appendChild(dlb);
-      var sp=document.createElement('span');sp.style.flex='1';tp.appendChild(sp);var sb=document.createElement('span');sb.className='badge '+(isE?'bexp':'bact');sb.textContent=ts;tp.appendChild(sb);it.appendChild(tp);
-      var bt=document.createElement('div');bt.style.cssText='display:flex;align-items:center;gap:6px';var cs=document.createElement('span');cs.className='code';cs.textContent=d.code;cs.style.flex='1';cs.addEventListener('click',function(){cp(d.code)});bt.appendChild(cs);var dv=document.createElement('span');dv.className='badge '+(d.usedBy?'b-lock':'b-free');dv.textContent=d.usedBy?'🔒 已綁定':'🔓 未使用';bt.appendChild(dv);it.appendChild(bt);c.appendChild(it)});
+      var ns=document.createElement('span');ns.className='name';ns.textContent=d.name+' ('+d.username+')';tp.appendChild(ns);
+      var eb=document.createElement('button');eb.className='btn btn-sm';eb.style.cssText='background:none;border:1px solid rgba(66,165,245,.2);color:#42A5F5;padding:2px 8px;font-size:11px';eb.textContent='✏️';eb.addEventListener('click',function(){var n=prompt('名稱：',d.name||'');if(n!==null)clientsRef.doc(d.username).update({name:n.trim()}).then(function(){toast('已更新')})});tp.appendChild(eb);
+      var rpb=document.createElement('button');rpb.className='btn btn-sm';rpb.style.cssText='background:none;border:1px solid rgba(66,165,245,.2);color:#42A5F5;padding:2px 8px;font-size:11px';rpb.textContent='🔑';rpb.addEventListener('click',function(){var n=prompt('新密碼：');if(n&&n.trim())clientsRef.doc(d.username).update({password:sh(n.trim())}).then(function(){toast('密碼已更新')})});tp.appendChild(rpb);
+      var rnb=document.createElement('button');rnb.className='btn btn-sm';rnb.style.cssText='background:none;border:1px solid rgba(0,230,118,.2);color:#00E676;padding:2px 8px;font-size:11px';rnb.textContent='🔄續期';rnb.addEventListener('click',function(){var nd=prompt('續期天數（3或7）：',d.days);if(nd&&!isNaN(parseInt(nd))){var newExp=Date.now()+parseInt(nd)*86400000;clientsRef.doc(d.username).update({expiry:newExp,days:parseInt(nd)}).then(function(){toast('已續期')})}});tp.appendChild(rnb);
+      var dlb=document.createElement('button');dlb.className='btn btn-sm';dlb.style.cssText='background:none;border:1px solid rgba(255,82,82,.2);color:#FF5252;padding:2px 8px;font-size:11px';dlb.textContent='🗑';dlb.addEventListener('click',function(){if(confirm('刪除客戶 '+d.name+'？'))clientsRef.doc(d.username).delete().then(function(){toast('已刪除')})});tp.appendChild(dlb);
+      var sp=document.createElement('span');sp.style.flex='1';tp.appendChild(sp);
+      var stb=document.createElement('span');stb.className='badge '+(isE?'bexp':'bact');stb.textContent=ts;tp.appendChild(stb);it.appendChild(tp);
+      var inf=document.createElement('div');inf.className='info-row';var expD=new Date(d.expiry);inf.textContent=(d.usedBy?'🔒 已綁定':'🔓 未登入')+'　|　到期：'+expD.toLocaleDateString('zh-TW')+' '+expD.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+      it.appendChild(inf);c.appendChild(it);
+    });
   });
-  // Listen agent data changes (limit update etc)
   agentsRef.doc(agentUser).onSnapshot(function(doc){
     if(!doc.exists){toast('帳號已被刪除');localStorage.removeItem('agent_s');location.reload();return}
-    var d=doc.data();agentLimit=d.limit||10;
+    agentLimit=doc.data().limit||10;
   });
 }
 
-function genCode(d){
-  // Check quota first
-  codesRef.where('createdBy','==',agentUser).get().then(function(snap){
-    if(snap.size>=agentLimit){toast('已達序號上限（'+agentLimit+' 組）');return}
-    var code=gc(d),now=new Date(),exp=new Date(now.getTime()+d*86400000);curCode=code;
-    document.getElementById('GC').textContent=code;document.getElementById('GN').value='';document.getElementById('GR').style.display='block';
-    codesRef.doc(code).set({code:code,days:d,name:'',created:now.getTime(),expiry:exp.getTime(),usedBy:null,createdBy:agentUser}).then(function(){toast('序號生成成功！')});
-  });
-}
-
-// Auto-login
 function chk(){var s=localStorage.getItem('agent_s');if(!s)return null;try{var d=JSON.parse(s);if(Date.now()-d.t>86400000){localStorage.removeItem('agent_s');return null}return d.u}catch(e){return null}}
 var saved=chk();
 if(saved){agentUser=saved;agentsRef.doc(saved).get().then(function(doc){if(doc.exists){agentLimit=doc.data().limit||10;showMain(doc.data())}else{localStorage.removeItem('agent_s')}})}
 
 document.getElementById('LB').addEventListener('click',doLogin);document.getElementById('OB').addEventListener('click',function(){localStorage.removeItem('agent_s');location.reload()});
 document.getElementById('LU').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('LP').focus()});document.getElementById('LP').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
-document.getElementById('G3').addEventListener('click',function(){genCode(3)});document.getElementById('G7').addEventListener('click',function(){genCode(7)});
-document.getElementById('GS').addEventListener('click',function(){
-  var n=document.getElementById('GN').value.trim();
-  if(!n){toast('請輸入名稱');return}
-  if(!curCode){toast('請先生成序號');return}
-  codesRef.doc(curCode).update({name:n}).then(function(){toast('已儲存：'+n)}).catch(function(){toast('儲存失敗')});
-});
-document.getElementById('GY').addEventListener('click',function(){var c=document.getElementById('GC').textContent;if(c)cp(c)});document.getElementById('GC').addEventListener('click',function(){if(this.textContent)cp(this.textContent)});
+document.getElementById('CAB').addEventListener('click',addClient);
 document.getElementById('CPB').addEventListener('click',function(){
-  var oldP=prompt('請輸入舊密碼：');
-  if(!oldP)return;
+  var oldP=prompt('舊密碼：');if(!oldP)return;
   agentsRef.doc(agentUser).get().then(function(doc){
-    if(!doc.exists){toast('帳號錯誤');return}
-    if(doc.data().password!==sh(oldP.trim())){toast('舊密碼錯誤');return}
-    var newP=prompt('請輸入新密碼：');
-    if(!newP||!newP.trim()){toast('密碼不能為空');return}
-    var confirmP=prompt('再次輸入新密碼：');
-    if(newP.trim()!==confirmP.trim()){toast('兩次密碼不一致');return}
+    if(!doc.exists||doc.data().password!==sh(oldP.trim())){toast('舊密碼錯誤');return}
+    var newP=prompt('新密碼：');if(!newP||!newP.trim()){toast('密碼不能為空');return}
+    var cfm=prompt('再次確認新密碼：');if(newP.trim()!==cfm.trim()){toast('兩次密碼不一致');return}
     agentsRef.doc(agentUser).update({password:sh(newP.trim())}).then(function(){toast('密碼修改成功！')});
   });
 });
