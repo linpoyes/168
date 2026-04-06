@@ -31,7 +31,8 @@
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCC4XErgsFWI30Vk0LKwTYypNsRbI6J3Fc",authDomain:"fortune168-2aff0.firebaseapp.com",projectId:"fortune168-2aff0",storageBucket:"fortune168-2aff0.firebasestorage.app",messagingSenderId:"1063619189537",appId:"1:1063619189537:web:f80c62c0238c86df54fc60"});
 window.db=firebase.firestore();
-window.codesRef=window.db.collection('codes');
+window.clientsRef=window.db.collection('clients');
+window.sh=function(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h}return h.toString()};
 </script>
 <script type="text/babel">
 const{useState,useCallback,useRef,useEffect}=React;
@@ -156,37 +157,26 @@ function App(){
   );
 }
 
-// ─── Login Wrapper ───
-function getDeviceId(){var id=localStorage.getItem('fortune_device_id');if(!id){id='DEV-'+Date.now()+'-'+Math.random().toString(36).substr(2,8);localStorage.setItem('fortune_device_id',id);}return id;}
-
+// ─── Login Screen (username/password) ───
 function LoginScreen({onLogin}){
-  const[code,setCode]=useState('');
+  const[user,setUser]=useState('');
+  const[pass,setPass]=useState('');
   const[error,setError]=useState('');
   const[loading,setLoading]=useState(false);
 
-  function formatCode(v){
-    v=v.toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if(v.length>2){var p=v.substring(0,2),r=v.substring(2),parts=[p];for(var i=0;i<r.length;i+=4)parts.push(r.substr(i,4));v=parts.join('-');}
-    return v;
-  }
-
   function doLogin(){
-    var c=code.trim().toUpperCase();
-    if(!c){setError('請輸入激活序號');return;}
-    if(!c.match(/^F[37]-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)){setError('序號格式錯誤');return;}
+    if(!user.trim()||!pass.trim()){setError('請輸入帳號和密碼');return}
     setLoading(true);setError('');
-    window.codesRef.doc(c).get().then(function(doc){
+    window.clientsRef.doc(user.trim()).get().then(function(doc){
       setLoading(false);
-      if(!doc.exists){setError('無效的激活序號');return;}
+      if(!doc.exists){setError('帳號不存在');return}
       var data=doc.data();
-      if(Date.now()>data.expiry){setError('此序號已過期');return;}
-      var myDevice=getDeviceId();
-      if(data.usedBy&&data.usedBy!==myDevice){setError('此序號已被其他裝置使用');return;}
-      if(!data.usedBy){window.codesRef.doc(c).update({usedBy:myDevice});}
-      var session={code:c,expiry:data.expiry,days:data.days,loginTime:Date.now()};
+      if(data.password!==window.sh(pass.trim())){setError('密碼錯誤');return}
+      if(Date.now()>data.expiry){setError('此帳號已過期');return}
+      var session={username:user.trim(),expiry:data.expiry,days:data.days,name:data.name,loginTime:Date.now()};
       localStorage.setItem('fortune_session',JSON.stringify(session));
       onLogin(session);
-    }).catch(function(){setLoading(false);setError('連線錯誤，請稍後再試');});
+    }).catch(function(){setLoading(false);setError('連線錯誤，請稍後再試')});
   }
 
   return(
@@ -197,9 +187,11 @@ function LoginScreen({onLogin}){
         <div style={{fontFamily:"'Cinzel Decorative','Noto Serif TC',serif",fontSize:'clamp(24px,6vw,36px)',fontWeight:900,background:'linear-gradient(135deg,#B8860B,#FFD700,#FFF8DC,#FFD700,#B8860B)',backgroundSize:'300% auto',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',animation:'gs 4s linear infinite',letterSpacing:3,marginBottom:6}}>致富預測系統</div>
         <div style={{fontFamily:"'Cinzel',serif",fontSize:11,color:'#D4AF37',letterSpacing:4,opacity:.5,marginBottom:30}}>FORTUNE PREDICTION SYSTEM</div>
         <div style={{position:'relative',padding:24,background:'linear-gradient(180deg,rgba(30,18,5,.95),rgba(20,12,3,.98))',borderRadius:14,border:'1px solid rgba(212,175,55,.3)',boxShadow:'0 8px 40px rgba(0,0,0,.5)'}}>
-          <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:8}}>請輸入激活序號</div>
-          <input value={code} onChange={e=>setCode(formatCode(e.target.value))} onKeyDown={e=>{if(e.key==='Enter')doLogin()}} placeholder="F7-XXXX-XXXX-XXXX-XXXX" style={{width:'100%',padding:'14px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:16,fontFamily:"'JetBrains Mono',monospace",letterSpacing:2,textAlign:'center',outline:'none'}}/>
-          <button onClick={doLogin} disabled={loading} style={{width:'100%',marginTop:16,padding:14,background:'linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#D4AF37,#B8860B)',backgroundSize:'300% auto',border:'2px solid #D4AF37',borderRadius:10,color:'#1A0F05',fontSize:16,fontWeight:900,fontFamily:"'Noto Serif TC',serif",cursor:'pointer',animation:'gs 3s linear infinite',letterSpacing:3}}>{loading?'驗證中...':'🔓 激活登入'}</button>
+          <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:6}}>帳號</div>
+          <input value={user} onChange={e=>setUser(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')document.getElementById('passInput').focus()}} placeholder="請輸入帳號" style={{width:'100%',padding:'12px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:15,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none',marginBottom:12}}/>
+          <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:6}}>密碼</div>
+          <input id="passInput" type="password" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')doLogin()}} placeholder="請輸入密碼" style={{width:'100%',padding:'12px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:15,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none'}}/>
+          <button onClick={doLogin} disabled={loading} style={{width:'100%',marginTop:16,padding:14,background:'linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#D4AF37,#B8860B)',backgroundSize:'300% auto',border:'2px solid #D4AF37',borderRadius:10,color:'#1A0F05',fontSize:16,fontWeight:900,fontFamily:"'Noto Serif TC',serif",cursor:'pointer',animation:'gs 3s linear infinite',letterSpacing:3}}>{loading?'驗證中...':'🔓 登入'}</button>
           {error&&<div style={{color:'#FF5252',fontSize:12,marginTop:10}}>{error}</div>}
         </div>
         <div style={{marginTop:24,fontSize:10,color:'rgba(212,175,55,.2)'}}>♠ ♥ ♦ ♣</div>
@@ -210,19 +202,19 @@ function LoginScreen({onLogin}){
 
 function ExpiryBar({session,onLogout}){
   const[now,setNow]=useState(Date.now());
-  useEffect(()=>{var iv=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(iv);},[]);
+  useEffect(()=>{var iv=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(iv)},[]);
   useEffect(()=>{
-    // Listen for code deletion
-    var unsub=window.codesRef.doc(session.code).onSnapshot(function(doc){
-      if(!doc.exists)onLogout();
+    var unsub=window.clientsRef.doc(session.username).onSnapshot(function(doc){
+      if(!doc.exists){onLogout();return}
+      if(Date.now()>doc.data().expiry){onLogout()}
     });
     return()=>unsub();
-  },[session.code]);
-  if(now>session.expiry){onLogout();return null;}
+  },[session.username]);
+  if(now>session.expiry){onLogout();return null}
   var r=session.expiry-now;var dd=Math.floor(r/86400000);var hh=Math.floor((r%86400000)/3600000);var mm=Math.floor((r%3600000)/60000);var ss=Math.floor((r%60000)/1000);
   var expiryDate=new Date(session.expiry);
   return(
-    <div style={{position:'fixed',top:0,left:0,right:0,zIndex:99,padding:'6px 16px',background:'linear-gradient(180deg,rgba(20,12,3,0.95),rgba(15,9,2,0.9))',borderBottom:'1px solid rgba(212,175,55,0.2)',display:'flex',justifyContent:'space-between',alignItems:'center',fontFamily:"'Noto Serif TC',serif",backdropFilter:'blur(10px)'}}>
+    <div style={{position:'fixed',top:0,left:0,right:0,zIndex:99,padding:'6px 16px',background:'linear-gradient(180deg,rgba(20,12,3,0.95),rgba(15,9,2,0.9))',borderBottom:'1px solid rgba(212,175,55,0.2)',display:'flex',justifyContent:'space-between',alignItems:'center',fontFamily:"'Noto Serif TC',serif"}}>
       <span style={{color:'#D4AF37',fontSize:10,opacity:0.6}}>到期：{expiryDate.toLocaleDateString('zh-TW')} {expiryDate.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</span>
       <span style={{color:'#00E676',fontSize:11,fontWeight:700,fontFamily:"'JetBrains Mono',monospace"}}>剩餘 {dd}天{hh}時{mm}分{ss}秒</span>
     </div>
@@ -233,11 +225,9 @@ function Root(){
   const[session,setSession]=useState(()=>{
     var s=localStorage.getItem('fortune_session');
     if(!s)return null;
-    try{var d=JSON.parse(s);if(Date.now()>d.expiry){localStorage.removeItem('fortune_session');return null;}return d;}catch(e){return null;}
+    try{var d=JSON.parse(s);if(Date.now()>d.expiry){localStorage.removeItem('fortune_session');return null}return d}catch(e){return null}
   });
-
-  function logout(){localStorage.removeItem('fortune_session');setSession(null);}
-
+  function logout(){localStorage.removeItem('fortune_session');setSession(null)}
   if(!session)return <LoginScreen onLogin={setSession}/>;
   return(
     <div>
