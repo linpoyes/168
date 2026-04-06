@@ -84,7 +84,7 @@ function addClient(){
   clientsRef.doc(u).get().then(function(doc){
     if(doc.exists){toast('帳號已存在');return}
     var now=Date.now(),exp=now+d*86400000;
-    return clientsRef.doc(u).set({username:u,password:sh(p),name:n,days:d,created:now,expiry:exp,createdBy:'admin',usedBy:null,active:true});
+    return clientsRef.doc(u).set({username:u,password:sh(p),name:n,days:d,created:now,expiry:exp,createdBy:'admin',usedBy:null,active:true,firstLogin:true});
   }).then(function(){document.getElementById('CU').value='';document.getElementById('CP').value='';document.getElementById('CN').value='';toast('客戶新增成功：'+n)});
 }
 
@@ -92,7 +92,7 @@ function addClient(){
 function addAgent(){
   var u=document.getElementById('AU').value.trim(),p=document.getElementById('AP').value.trim(),l=parseInt(document.getElementById('AL').value)||10,n=document.getElementById('AN').value.trim()||u;
   if(!u||!p){toast('請輸入帳號和密碼');return}
-  agentsRef.doc(u).get().then(function(doc){if(doc.exists){toast('帳號已存在');return}return agentsRef.doc(u).set({username:u,password:sh(p),name:n,limit:l,created:Date.now(),active:true})}).then(function(){document.getElementById('AU').value='';document.getElementById('AP').value='';document.getElementById('AL').value='';document.getElementById('AN').value='';toast('代理新增成功')});
+  agentsRef.doc(u).get().then(function(doc){if(doc.exists){toast('帳號已存在');return}return agentsRef.doc(u).set({username:u,password:sh(p),name:n,limit:l,created:Date.now(),active:true,firstLogin:true})}).then(function(){document.getElementById('AU').value='';document.getElementById('AP').value='';document.getElementById('AL').value='';document.getElementById('AN').value='';toast('代理新增成功')});
 }
 
 function startListen(){
