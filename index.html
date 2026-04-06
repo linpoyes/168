@@ -173,11 +173,13 @@ function LoginScreen({onLogin}){
       var data=doc.data();
       if(data.password!==window.sh(pass.trim())){setError('密碼錯誤');return}
       if(Date.now()>data.expiry){setError('此帳號已過期');return}
-      var session={username:user.trim(),expiry:data.expiry,days:data.days,name:data.name,loginTime:Date.now()};
+      var session={username:user.trim(),expiry:data.expiry,days:data.days,name:data.name,firstLogin:data.firstLogin!==false,loginTime:Date.now()};
       localStorage.setItem('fortune_session',JSON.stringify(session));
       onLogin(session);
     }).catch(function(){setLoading(false);setError('連線錯誤，請稍後再試')});
   }
+
+  var inputStyle={width:'100%',padding:'12px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:15,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none'};
 
   return(
     <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'radial-gradient(ellipse at 50% 30%,#2A1810,#150D05 40%,#050402 100%)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Noto Serif TC',Georgia,serif",color:'#F5E6C8'}}>
@@ -188,13 +190,96 @@ function LoginScreen({onLogin}){
         <div style={{fontFamily:"'Cinzel',serif",fontSize:11,color:'#D4AF37',letterSpacing:4,opacity:.5,marginBottom:30}}>FORTUNE PREDICTION SYSTEM</div>
         <div style={{position:'relative',padding:24,background:'linear-gradient(180deg,rgba(30,18,5,.95),rgba(20,12,3,.98))',borderRadius:14,border:'1px solid rgba(212,175,55,.3)',boxShadow:'0 8px 40px rgba(0,0,0,.5)'}}>
           <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:6}}>帳號</div>
-          <input value={user} onChange={e=>setUser(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')document.getElementById('passInput').focus()}} placeholder="請輸入帳號" style={{width:'100%',padding:'12px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:15,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none',marginBottom:12}}/>
+          <input value={user} onChange={e=>setUser(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')document.getElementById('passInput').focus()}} placeholder="請輸入帳號" style={{...inputStyle,marginBottom:12}}/>
           <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:6}}>密碼</div>
-          <input id="passInput" type="password" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')doLogin()}} placeholder="請輸入密碼" style={{width:'100%',padding:'12px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:15,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none'}}/>
+          <input id="passInput" type="password" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')doLogin()}} placeholder="請輸入密碼" style={inputStyle}/>
           <button onClick={doLogin} disabled={loading} style={{width:'100%',marginTop:16,padding:14,background:'linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#D4AF37,#B8860B)',backgroundSize:'300% auto',border:'2px solid #D4AF37',borderRadius:10,color:'#1A0F05',fontSize:16,fontWeight:900,fontFamily:"'Noto Serif TC',serif",cursor:'pointer',animation:'gs 3s linear infinite',letterSpacing:3}}>{loading?'驗證中...':'🔓 登入'}</button>
           {error&&<div style={{color:'#FF5252',fontSize:12,marginTop:10}}>{error}</div>}
         </div>
         <div style={{marginTop:24,fontSize:10,color:'rgba(212,175,55,.2)'}}>♠ ♥ ♦ ♣</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── First Login: Force Change Password ───
+function ForceChangePassword({session,onDone}){
+  const[newP,setNewP]=useState('');
+  const[cfm,setCfm]=useState('');
+  const[error,setError]=useState('');
+  const[loading,setLoading]=useState(false);
+
+  function doChange(){
+    if(!newP.trim()){setError('請輸入新密碼');return}
+    if(newP.trim().length<4){setError('密碼至少4個字元');return}
+    if(newP.trim()!==cfm.trim()){setError('兩次密碼不一致');return}
+    setLoading(true);
+    window.clientsRef.doc(session.username).update({password:window.sh(newP.trim()),firstLogin:false}).then(function(){
+      setLoading(false);
+      var updated={...session,firstLogin:false};
+      localStorage.setItem('fortune_session',JSON.stringify(updated));
+      onDone(updated);
+    }).catch(function(){setLoading(false);setError('更新失敗')});
+  }
+
+  var inputStyle={width:'100%',padding:'12px 16px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:15,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none'};
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'radial-gradient(ellipse at 50% 30%,#2A1810,#150D05 40%,#050402 100%)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Noto Serif TC',Georgia,serif",color:'#F5E6C8'}}>
+      <div style={{width:'90%',maxWidth:400,textAlign:'center',animation:'fu .8s ease'}}>
+        <div style={{fontSize:50,marginBottom:16}}>🔑</div>
+        <div style={{fontFamily:"'Cinzel',serif",fontSize:20,fontWeight:900,color:'#D4AF37',marginBottom:6}}>首次登入</div>
+        <div style={{fontSize:12,color:'rgba(212,175,55,.5)',marginBottom:24}}>請設定您的新密碼</div>
+        <div style={{position:'relative',padding:24,background:'linear-gradient(180deg,rgba(30,18,5,.95),rgba(20,12,3,.98))',borderRadius:14,border:'1px solid rgba(212,175,55,.3)',boxShadow:'0 8px 40px rgba(0,0,0,.5)'}}>
+          <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:6}}>新密碼</div>
+          <input type="password" value={newP} onChange={e=>setNewP(e.target.value)} placeholder="輸入新密碼" style={{...inputStyle,marginBottom:12}}/>
+          <div style={{fontSize:12,color:'rgba(212,175,55,.6)',textAlign:'left',marginBottom:6}}>確認新密碼</div>
+          <input type="password" value={cfm} onChange={e=>setCfm(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')doChange()}} placeholder="再次輸入新密碼" style={inputStyle}/>
+          <button onClick={doChange} disabled={loading} style={{width:'100%',marginTop:16,padding:14,background:'linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#D4AF37,#B8860B)',backgroundSize:'300% auto',border:'2px solid #D4AF37',borderRadius:10,color:'#1A0F05',fontSize:16,fontWeight:900,fontFamily:"'Noto Serif TC',serif",cursor:'pointer',animation:'gs 3s linear infinite',letterSpacing:3}}>{loading?'更新中...':'✓ 設定新密碼'}</button>
+          {error&&<div style={{color:'#FF5252',fontSize:12,marginTop:10}}>{error}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Change Password (from app) ───
+function ChangePasswordModal({session,onClose}){
+  const[oldP,setOldP]=useState('');
+  const[newP,setNewP]=useState('');
+  const[cfm,setCfm]=useState('');
+  const[error,setError]=useState('');
+  const[loading,setLoading]=useState(false);
+
+  function doChange(){
+    if(!oldP.trim()){setError('請輸入舊密碼');return}
+    if(!newP.trim()||newP.trim().length<4){setError('新密碼至少4個字元');return}
+    if(newP.trim()!==cfm.trim()){setError('兩次密碼不一致');return}
+    setLoading(true);
+    window.clientsRef.doc(session.username).get().then(function(doc){
+      if(!doc.exists){setError('帳號錯誤');setLoading(false);return}
+      if(doc.data().password!==window.sh(oldP.trim())){setError('舊密碼錯誤');setLoading(false);return}
+      return window.clientsRef.doc(session.username).update({password:window.sh(newP.trim())});
+    }).then(function(){setLoading(false);onClose('密碼修改成功！')}).catch(function(){setLoading(false);setError('更新失敗')});
+  }
+
+  var inputStyle={width:'100%',padding:'10px 14px',background:'rgba(0,0,0,.4)',border:'1.5px solid rgba(212,175,55,.2)',borderRadius:10,color:'#FFD740',fontSize:14,fontFamily:"'Noto Serif TC',serif",textAlign:'center',outline:'none'};
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,.8)',zIndex:9998,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Noto Serif TC',serif"}}>
+      <div style={{width:'90%',maxWidth:380,padding:24,background:'linear-gradient(180deg,rgba(30,18,5,.98),rgba(20,12,3,.99))',borderRadius:14,border:'1px solid rgba(212,175,55,.3)',boxShadow:'0 8px 40px rgba(0,0,0,.6)',animation:'fu .3s ease'}}>
+        <div style={{textAlign:'center',fontSize:14,fontWeight:700,color:'#D4AF37',marginBottom:16}}>🔑 修改密碼</div>
+        <div style={{fontSize:11,color:'rgba(212,175,55,.5)',marginBottom:4}}>舊密碼</div>
+        <input type="password" value={oldP} onChange={e=>setOldP(e.target.value)} placeholder="輸入舊密碼" style={{...inputStyle,marginBottom:10}}/>
+        <div style={{fontSize:11,color:'rgba(212,175,55,.5)',marginBottom:4}}>新密碼</div>
+        <input type="password" value={newP} onChange={e=>setNewP(e.target.value)} placeholder="輸入新密碼" style={{...inputStyle,marginBottom:10}}/>
+        <div style={{fontSize:11,color:'rgba(212,175,55,.5)',marginBottom:4}}>確認新密碼</div>
+        <input type="password" value={cfm} onChange={e=>setCfm(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')doChange()}} placeholder="再次輸入新密碼" style={{...inputStyle,marginBottom:10}}/>
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={doChange} disabled={loading} style={{flex:1,padding:12,background:'linear-gradient(135deg,#B8860B,#D4AF37)',border:'2px solid #D4AF37',borderRadius:10,color:'#1A0F05',fontSize:14,fontWeight:900,cursor:'pointer',fontFamily:"'Noto Serif TC',serif"}}>{loading?'更新中...':'✓ 確認'}</button>
+          <button onClick={()=>onClose(null)} style={{flex:1,padding:12,background:'rgba(255,82,82,.1)',border:'1px solid rgba(255,82,82,.3)',borderRadius:10,color:'#FF5252',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:"'Noto Serif TC',serif"}}>取消</button>
+        </div>
+        {error&&<div style={{color:'#FF5252',fontSize:12,marginTop:8,textAlign:'center'}}>{error}</div>}
       </div>
     </div>
   );
@@ -227,12 +312,18 @@ function Root(){
     if(!s)return null;
     try{var d=JSON.parse(s);if(Date.now()>d.expiry){localStorage.removeItem('fortune_session');return null}return d}catch(e){return null}
   });
+  const[showPwModal,setShowPwModal]=useState(false);
   function logout(){localStorage.removeItem('fortune_session');setSession(null)}
   if(!session)return <LoginScreen onLogin={setSession}/>;
+  if(session.firstLogin)return <ForceChangePassword session={session} onDone={setSession}/>;
   return(
     <div>
       <ExpiryBar session={session} onLogout={logout}/>
-      <button onClick={logout} style={{position:'fixed',top:12,right:12,zIndex:100,padding:'6px 14px',background:'rgba(255,82,82,.1)',border:'1px solid rgba(255,82,82,.3)',borderRadius:8,color:'#FF5252',fontSize:11,cursor:'pointer',fontFamily:"'Noto Serif TC',serif"}}>登出</button>
+      <div style={{position:'fixed',top:12,right:12,zIndex:100,display:'flex',gap:6}}>
+        <button onClick={()=>setShowPwModal(true)} style={{padding:'6px 14px',background:'rgba(212,175,55,.1)',border:'1px solid rgba(212,175,55,.3)',borderRadius:8,color:'#D4AF37',fontSize:11,cursor:'pointer',fontFamily:"'Noto Serif TC',serif"}}>🔑 改密碼</button>
+        <button onClick={logout} style={{padding:'6px 14px',background:'rgba(255,82,82,.1)',border:'1px solid rgba(255,82,82,.3)',borderRadius:8,color:'#FF5252',fontSize:11,cursor:'pointer',fontFamily:"'Noto Serif TC',serif"}}>登出</button>
+      </div>
+      {showPwModal&&<ChangePasswordModal session={session} onClose={(msg)=>{setShowPwModal(false);if(msg)alert(msg)}}/>}
       <div style={{paddingTop:32}}><App/></div>
     </div>
   );
