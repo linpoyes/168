@@ -28,6 +28,22 @@ select.inp{appearance:none;-webkit-appearance:none}
 <body>
 <div class="login-overlay" id="LO"><div style="width:90%;max-width:380px;text-align:center;animation:fadeIn .8s ease"><div style="font-size:50px;margin-bottom:16px">👤</div><h1>代理管理系統</h1><div class="sub">AGENT PANEL</div><div class="panel"><div style="font-size:12px;color:rgba(66,165,245,.6);text-align:left;margin-bottom:6px">代理帳號</div><input class="inp" id="LU" type="text" placeholder="帳號" style="width:100%;margin-bottom:10px"/><div style="font-size:12px;color:rgba(66,165,245,.6);text-align:left;margin-bottom:6px">密碼</div><input class="inp" id="LP" type="password" placeholder="密碼" style="width:100%;margin-bottom:10px"/><button class="btn btn-blue" id="LB" style="width:100%">🔓 代理登入</button><div id="LE" style="color:#FF5252;font-size:12px;margin-top:8px;min-height:16px"></div></div></div></div>
 <button class="logout-btn" id="OB">登出</button>
+<!-- Force Change Password -->
+<div id="FCP" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%,#0d1520,#060b12 50%,#030508 100%);z-index:9998;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;color:#C8DEFF">
+  <div style="width:90%;max-width:380px;text-align:center;animation:fadeIn .8s ease">
+    <div style="font-size:50px;margin-bottom:16px">🔑</div>
+    <div id="fcTitle" style="font-size:18px;font-weight:900;color:#42A5F5;margin-bottom:6px">首次登入</div>
+    <div style="font-size:12px;color:rgba(66,165,245,.5);margin-bottom:20px">請設定您的新密碼</div>
+    <div class="panel">
+      <div style="font-size:12px;color:rgba(66,165,245,.6);text-align:left;margin-bottom:6px">新密碼</div>
+      <input class="inp" id="fcNew" type="password" placeholder="輸入新密碼" style="width:100%;margin-bottom:10px"/>
+      <div style="font-size:12px;color:rgba(66,165,245,.6);text-align:left;margin-bottom:6px">確認新密碼</div>
+      <input class="inp" id="fcCfm" type="password" placeholder="再次輸入新密碼" style="width:100%;margin-bottom:10px"/>
+      <button class="btn btn-blue" id="fcBtn" style="width:100%">✓ 設定新密碼</button>
+      <div id="fcErr" style="color:#FF5252;font-size:12px;margin-top:8px;min-height:16px"></div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="TT"></div>
 <div class="container" id="MN" style="display:none">
   <div style="text-align:center;margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px"><div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,#42A5F5)"></div><span style="color:#42A5F5;font-size:16px">👤</span><div style="width:40px;height:1px;background:linear-gradient(90deg,#42A5F5,transparent)"></div></div><h1 id="WT">代理管理系統</h1><div class="sub">AGENT PANEL</div></div>
@@ -63,8 +79,27 @@ function doLogin(){
     var d=doc.data();if(d.password!==sh(p)){document.getElementById('LE').textContent='密碼錯誤';return}
     if(!d.active){document.getElementById('LE').textContent='此帳號已停用';return}
     agentUser=u;agentLimit=d.limit||10;
-    localStorage.setItem('agent_s',JSON.stringify({u:u,t:Date.now()}));showMain(d);
+    localStorage.setItem('agent_s',JSON.stringify({u:u,t:Date.now()}));
+    if(d.firstLogin!==false){showForceChange(d)}else{showMain(d)}
   }).catch(function(){document.getElementById('LE').textContent='連線錯誤'});
+}
+
+function showForceChange(ad){
+  document.getElementById('LO').classList.add('hidden');
+  document.getElementById('FCP').style.display='flex';
+  document.getElementById('fcTitle').textContent=(ad?ad.name:agentUser)+' — 首次登入';
+}
+
+function doForceChange(){
+  var np=document.getElementById('fcNew').value.trim(),cf=document.getElementById('fcCfm').value.trim();
+  if(!np){document.getElementById('fcErr').textContent='請輸入新密碼';return}
+  if(np.length<4){document.getElementById('fcErr').textContent='密碼至少4個字元';return}
+  if(np!==cf){document.getElementById('fcErr').textContent='兩次密碼不一致';return}
+  agentsRef.doc(agentUser).update({password:sh(np),firstLogin:false}).then(function(){
+    document.getElementById('FCP').style.display='none';
+    agentsRef.doc(agentUser).get().then(function(doc){showMain(doc.data())});
+    toast('密碼設定成功！');
+  });
 }
 
 function showMain(ad){
@@ -85,7 +120,7 @@ function addClient(){
     if(!doc)return;
     if(doc.exists){toast('帳號已存在');return}
     var now=Date.now(),exp=now+d*86400000;
-    return clientsRef.doc(u).set({username:u,password:sh(p),name:n,days:d,created:now,expiry:exp,createdBy:agentUser,usedBy:null,active:true});
+    return clientsRef.doc(u).set({username:u,password:sh(p),name:n,days:d,created:now,expiry:exp,createdBy:agentUser,usedBy:null,active:true,firstLogin:true});
   }).then(function(){document.getElementById('CU').value='';document.getElementById('CP2').value='';document.getElementById('CN').value='';toast('客戶新增成功：'+n)});
 }
 
@@ -120,11 +155,13 @@ function startListen(){
 
 function chk(){var s=localStorage.getItem('agent_s');if(!s)return null;try{var d=JSON.parse(s);if(Date.now()-d.t>86400000){localStorage.removeItem('agent_s');return null}return d.u}catch(e){return null}}
 var saved=chk();
-if(saved){agentUser=saved;agentsRef.doc(saved).get().then(function(doc){if(doc.exists){agentLimit=doc.data().limit||10;showMain(doc.data())}else{localStorage.removeItem('agent_s')}})}
+if(saved){agentUser=saved;agentsRef.doc(saved).get().then(function(doc){if(doc.exists){var d=doc.data();agentLimit=d.limit||10;if(d.firstLogin!==false){showForceChange(d)}else{showMain(d)}}else{localStorage.removeItem('agent_s')}})}
 
 document.getElementById('LB').addEventListener('click',doLogin);document.getElementById('OB').addEventListener('click',function(){localStorage.removeItem('agent_s');location.reload()});
 document.getElementById('LU').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('LP').focus()});document.getElementById('LP').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 document.getElementById('CAB').addEventListener('click',addClient);
+document.getElementById('fcBtn').addEventListener('click',doForceChange);
+document.getElementById('fcCfm').addEventListener('keydown',function(e){if(e.key==='Enter')doForceChange()});
 document.getElementById('CPB').addEventListener('click',function(){
   var oldP=prompt('舊密碼：');if(!oldP)return;
   agentsRef.doc(agentUser).get().then(function(doc){
